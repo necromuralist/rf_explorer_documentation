@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RFExplorer.RFESweepDataCollection &#8212; RF-Explorer Documentation 2017.10.02.a documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2017.10.02.a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          RF-Explorer Documentation</a>
+        <span class="navbar-text navbar-version pull-left"><b>2017.10.02</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rfexplorer/index.html">RF-Explorer</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <h1>Source code for RFExplorer.RFESweepDataCollection</h1><div class="highlight"><pre>
+<span></span><span class="c1">#pylint: disable=trailing-whitespace, line-too-long, bad-whitespace, invalid-name, R0204, C0200</span>
+<span class="c1">#pylint: disable=superfluous-parens, missing-docstring, broad-except</span>
+<span class="c1">#pylint: disable=too-many-lines, too-many-instance-attributes, too-many-statements, too-many-nested-blocks</span>
+<span class="c1">#pylint: disable=too-many-branches, too-many-public-methods, too-many-locals, too-many-arguments</span>
+
+<span class="c1">#============================================================================</span>
+<span class="c1">#RF Explorer Python Libraries - A Spectrum Analyzer for everyone!</span>
+<span class="c1">#Copyright © 2010-17 Ariel Rocholl, www.rf-explorer.com</span>
+<span class="c1">#</span>
+<span class="c1">#This application is free software; you can redistribute it and/or</span>
+<span class="c1">#modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#License as published by the Free Software Foundation; either</span>
+<span class="c1">#version 3.0 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#This software is distributed in the hope that it will be useful,</span>
+<span class="c1">#but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#You should have received a copy of the GNU General Public</span>
+<span class="c1">#License along with this library; if not, write to the Free Software</span>
+<span class="c1">#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</span>
+<span class="c1">#=============================================================================</span>
+
+<span class="kn">from</span> <span class="nn">RFExplorer</span> <span class="k">import</span> <span class="n">RFE_Common</span> 
+<span class="kn">from</span> <span class="nn">RFExplorer.RFESweepData</span> <span class="k">import</span> <span class="n">RFESweepData</span>
+
+<div class="viewcode-block" id="RFESweepDataCollection"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection">[docs]</a><span class="k">class</span> <span class="nc">RFESweepDataCollection</span><span class="p">:</span>    
+    <span class="sd">&quot;&quot;&quot; Allocates up to nCollectionSize elements to start with the container.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nCollectionSize</span><span class="p">,</span> <span class="n">bAutogrow</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span> <span class="o">=</span> <span class="p">[]</span>            <span class="c1">#Collection of available spectrum data items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1">#Single data set, defined for the whole collection and updated with Add, to</span>
+                                     <span class="c1">#keep the Max Hold values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>              <span class="c1">#Max value for index with available data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_nInitialCollectionSize</span> <span class="o">=</span> <span class="mi">0</span>
+                         
+        <span class="k">if</span> <span class="p">(</span><span class="n">nCollectionSize</span> <span class="o">&gt;</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MAX_ELEMENTS</span><span class="p">):</span>
+            <span class="n">nCollectionSize</span> <span class="o">=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MAX_ELEMENTS</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_bAutogrow</span> <span class="o">=</span> <span class="n">bAutogrow</span>        <span class="c1">#true if the array bounds may grow up to _MAX_ELEMENTS, otherwise will</span>
+                                            <span class="c1">#be limited to initial collection size</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_nInitialCollectionSize</span> <span class="o">=</span> <span class="n">nCollectionSize</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">CleanAll</span><span class="p">()</span>
+    
+    <span class="nd">@property</span>    
+    <span class="k">def</span> <span class="nf">MaxHoldData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Single data set, defined for the whole collection and updated with Add, to keep the Max Hold values </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the total of elements with actual data allocated.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">UpperBound</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the highest valid index of elements with actual data allocated.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> 
+
+<div class="viewcode-block" id="RFESweepDataCollection.FileHeaderVersioned_001"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.FileHeaderVersioned_001">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">FileHeaderVersioned_001</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;File format constant - 001</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String 001 File header version</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;RFExplorer PC Client - Format v001&quot;</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.FileHeaderVersioned"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.FileHeaderVersioned">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">FileHeaderVersioned</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;File format constant indicates the latest known and supported file format </span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String File header version</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;RFExplorer PC Client - Format v&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_FILE_VERSION</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.GetData"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetData">[docs]</a>    <span class="k">def</span> <span class="nf">GetData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nIndex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the data pointed by the zero-starting index</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            nIndex -- Index to find specific data inside the data array</span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    RFESweepData None if no data is available with this index</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nIndex</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIndex</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.IsFull"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.IsFull">[docs]</a>    <span class="k">def</span> <span class="nf">IsFull</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; True when the absolute maximum of allowed elements in the container is allocated</span>
+<span class="sd">                </span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Boolean True when the absolute maximum of allowed elements in the container is allocated, False otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">&gt;=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MAX_ELEMENTS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.Add"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Add">[docs]</a>    <span class="k">def</span> <span class="nf">Add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SweepData</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function add a single sweep data in the collection </span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            SweepData -- A single sweep data</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean True it sweep data is added, False otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IsFull</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span> <span class="o">=</span> <span class="n">RFESweepData</span><span class="p">(</span><span class="n">SweepData</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">,</span> <span class="n">SweepData</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">,</span> <span class="n">SweepData</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_bAutogrow</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ResizeCollection</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="c1">#add 10K samples more</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1">#move all items one position down, lose the older one at position 0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">nInd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nInd</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nInd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span><span class="p">]</span> <span class="o">=</span> <span class="n">SweepData</span>
+            
+            <span class="n">nInd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">nInd</span> <span class="o">&lt;</span> <span class="n">SweepData</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">SweepData</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nInd</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nInd</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span><span class="o">.</span><span class="n">SetAmplitudeDBM</span><span class="p">(</span><span class="n">nInd</span><span class="p">,</span> <span class="n">SweepData</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nInd</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+                <span class="n">nInd</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">obEx</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in RFESweepDataCollection - Add(): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">obEx</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.CleanAll"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.CleanAll">[docs]</a>    <span class="k">def</span> <span class="nf">CleanAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize internal data</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span> <span class="o">=</span> <span class="p">[</span><span class="n">RFESweepData</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nInitialCollectionSize</span>   
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_MaxHoldData</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.Dump"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump">[docs]</a>    <span class="k">def</span> <span class="nf">Dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump a CSV string line with sweep data collection</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String All sweep data collection</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">sDump</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">nIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Count</span><span class="p">):</span>
+            <span class="n">objSweep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIndex</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">sDump</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="n">sDump</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">objSweep</span><span class="p">):</span>
+                <span class="n">sDump</span> <span class="o">+=</span> <span class="n">objSweep</span><span class="o">.</span><span class="n">Dump</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sDump</span> <span class="o">+=</span> <span class="s2">&quot;Sweep </span><span class="si">{null}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">sDump</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.GetMedianAverage"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetMedianAverage">[docs]</a>    <span class="k">def</span> <span class="nf">GetMedianAverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nStart</span><span class="p">,</span> <span class="n">nEnd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a SweepData object with median average data </span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            nStart -- Start frequency for the median average calculation  </span>
+<span class="sd">            nEnd   -- End frequency for the median average calculation</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            RFESweepData object with median average data, None otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="c1">#string sDebugText = &quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nStart</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="ow">or</span> <span class="n">nEnd</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="ow">or</span> <span class="n">nStart</span> <span class="o">&gt;</span> <span class="n">nEnd</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">nTotalIterations</span> <span class="o">=</span> <span class="n">nEnd</span> <span class="o">-</span> <span class="n">nStart</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">objReturn</span> <span class="o">=</span> <span class="n">RFESweepData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nEnd</span><span class="p">]</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nEnd</span><span class="p">]</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nEnd</span><span class="p">]</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">nSweepInd</span> <span class="ow">in</span> <span class="n">objReturn</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">:</span>
+                <span class="c1">#sDebugText += &quot;[&quot; + nSweepInd + &quot;]:&quot;</span>
+                <span class="n">fSweepValue</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">arrSweepValues</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nTotalIterations</span>
+                
+                <span class="n">nIterationInd</span> <span class="o">=</span> <span class="n">nStart</span>
+                <span class="k">while</span><span class="p">(</span><span class="n">nIterationInd</span> <span class="o">&lt;=</span> <span class="n">nEnd</span><span class="p">)</span> <span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">nSweepInd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="c1">#check all the sweeps use the same configuration, but</span>
+                        <span class="c1">#only in first loop to reduce overhead</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIterationInd</span><span class="p">]</span><span class="o">.</span><span class="n">IsSameConfiguration</span><span class="p">(</span><span class="n">objReturn</span><span class="p">)):</span>
+                            <span class="k">return</span> <span class="kc">None</span>
+                    <span class="n">arrSweepValues</span><span class="p">[</span><span class="n">nIterationInd</span> <span class="o">-</span> <span class="n">nStart</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIterationInd</span><span class="p">]</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nSweepInd</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="c1">#sDebugText += str(self.m_arrData[nIterationInd].GetAmplitudeDBM(nSweepInd)) + &quot;,&quot;</span>
+                    <span class="n">nIterationInd</span> <span class="o">+=</span> <span class="mi">1</span>
+                                
+                <span class="n">arrSweepValues</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+                <span class="n">fSweepValue</span> <span class="o">=</span> <span class="n">arrSweepValues</span><span class="p">[</span><span class="n">nTotalIterations</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="c1">#sDebugText += &quot;(&quot; + str(fSweepValue) + &quot;)&quot;</span>
+                <span class="n">objReturn</span><span class="o">.</span><span class="n">SetAmplitudeDBM</span><span class="p">(</span><span class="n">nSweepInd</span><span class="p">,</span> <span class="n">fSweepValue</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">obEx</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in RFESweedDataCollection - GetMedianAverage(): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">obEx</span><span class="p">))</span>
+            <span class="n">objReturn</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">objReturn</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.GetAverage"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetAverage">[docs]</a>    <span class="k">def</span> <span class="nf">GetAverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nStart</span><span class="p">,</span> <span class="n">nEnd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a SweepData object with average data </span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            nStart -- Start frequency for the average calculation  </span>
+<span class="sd">            nEnd   -- End frequency for the average calculation</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            RFESweepData object with average data, None otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="c1">#string sDebugText = &quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">nStart</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="ow">or</span> <span class="n">nEnd</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="ow">or</span> <span class="n">nStart</span> <span class="o">&gt;</span> <span class="n">nEnd</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">objReturn</span> <span class="o">=</span> <span class="n">RFESweepData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nEnd</span><span class="p">]</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nEnd</span><span class="p">]</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nEnd</span><span class="p">]</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">nSweepInd</span> <span class="ow">in</span> <span class="n">objReturn</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">:</span>
+                <span class="c1">#sDebugText += &quot;[&quot; + nSweepInd + &quot;]:&quot;</span>
+                <span class="n">fSweepValue</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                <span class="n">nIterationInd</span> <span class="o">=</span> <span class="n">nStart</span> 
+                <span class="k">while</span> <span class="p">(</span><span class="n">nIterationInd</span> <span class="o">&lt;=</span> <span class="n">nEnd</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">nSweepInd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="c1">#check all the sweeps use the same configuration, but</span>
+                        <span class="c1">#only in first loop to reduce overhead</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIterationInd</span><span class="p">]</span><span class="o">.</span><span class="n">IsSameConfiguration</span><span class="p">(</span><span class="n">objReturn</span><span class="p">)):</span>
+                            <span class="k">return</span> <span class="kc">None</span>
+
+                    <span class="n">fSweepValue</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIterationInd</span><span class="p">]</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nSweepInd</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="c1">#sDebugText +=</span>
+                    <span class="c1">#str(self.m_arrData[nIterationInd].GetAmplitudeDBM(nSweepInd))</span>
+                    <span class="c1">#+ &quot;,&quot;</span>
+                    <span class="n">nIterationInd</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+                <span class="n">fSweepValue</span> <span class="o">=</span> <span class="n">fSweepValue</span> <span class="o">/</span> <span class="p">(</span><span class="n">nEnd</span> <span class="o">-</span> <span class="n">nStart</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1">#sDebugText += &quot;(&quot; + str(fSweepValue) + &quot;)&quot;</span>
+                <span class="n">objReturn</span><span class="o">.</span><span class="n">SetAmplitudeDBM</span><span class="p">(</span><span class="n">nSweepInd</span><span class="p">,</span> <span class="n">fSweepValue</span><span class="p">)</span>
+        
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">obEx</span><span class="p">:</span>
+            <span class="n">objReturn</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in RFESweedDataCollection - GetAverage(): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">obEx</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">objReturn</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.SaveFileCSV"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.SaveFileCSV">[docs]</a>    <span class="k">def</span> <span class="nf">SaveFileCSV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sFilename</span><span class="p">,</span> <span class="n">cCSVDelimiter</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Will write large, complex, multi-sweep CSV file. No save anything, if there are no data</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            sFilename           -- Full path filename</span>
+<span class="sd">            cCSVDelimiter       -- Comma delimiter to use</span>
+<span class="sd">            AmplitudeCorrection -- Optional parameter, can be None. If different than None, use the amplitude correction table</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">objFirst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sFilename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">objWriter</span><span class="p">:</span>
+                <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;RF Explorer CSV data file: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">FileHeaderVersioned</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> \
+                    <span class="s2">&quot;Start Frequency: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;MHZ&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> \
+                    <span class="s2">&quot;Step Frequency: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;KHZ&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> \
+                    <span class="s2">&quot;Total data entries: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> \
+                    <span class="s2">&quot;Steps per entry: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">)</span><span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                <span class="n">sHeader</span> <span class="o">=</span> <span class="s2">&quot;Sweep&quot;</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span> <span class="o">+</span> <span class="s2">&quot;Date&quot;</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span> <span class="o">+</span> <span class="s2">&quot;Time&quot;</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span> <span class="o">+</span> <span class="s2">&quot;Milliseconds&quot;</span>
+
+                <span class="k">for</span> <span class="n">nStep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">):</span>
+                    <span class="n">dFrequency</span> <span class="o">=</span> <span class="n">objFirst</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span> <span class="o">+</span> <span class="n">nStep</span> <span class="o">*</span> <span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">)</span>
+                    <span class="n">sHeader</span> <span class="o">+=</span> <span class="n">cCSVDelimiter</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{:08.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dFrequency</span><span class="p">)</span>
+
+                <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sHeader</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">nSweepInd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span><span class="p">):</span>
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nSweepInd</span><span class="p">)</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span><span class="p">)</span>
+
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nSweepInd</span><span class="p">]</span><span class="o">.</span><span class="n">CaptureTime</span><span class="o">.</span><span class="n">date</span><span class="p">())</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span> <span class="o">+</span> \
+                        <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nSweepInd</span><span class="p">]</span><span class="o">.</span><span class="n">CaptureTime</span><span class="o">.</span><span class="n">time</span><span class="p">())[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span> <span class="o">+</span> \
+                        <span class="s1">&#39;.&#39;</span> <span class="o">+</span><span class="s1">&#39;</span><span class="si">{:03}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nSweepInd</span><span class="p">]</span><span class="o">.</span><span class="n">CaptureTime</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="s1">&#39;microsecond&#39;</span><span class="p">))[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]))</span> <span class="o">+</span> <span class="n">cCSVDelimiter</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nSweepInd</span><span class="p">]</span><span class="o">.</span><span class="n">IsSameConfiguration</span><span class="p">(</span><span class="n">objFirst</span><span class="p">)):</span>
+                        <span class="k">break</span>
+
+                    <span class="k">for</span> <span class="n">nStep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">):</span>
+                        <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nSweepInd</span><span class="p">]</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nStep</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">,</span> <span class="p">(</span><span class="n">AmplitudeCorrection</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">))))</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">nStep</span> <span class="o">!=</span> <span class="p">(</span><span class="n">objFirst</span><span class="o">.</span><span class="n">TotalSteps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                            <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cCSVDelimiter</span><span class="p">)</span>
+                    
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">objEx</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in RFESweepDataCollection - SaveFileCSV(): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">objEx</span><span class="p">))</span>      </div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.GetTopBottomDataRange"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetTopBottomDataRange">[docs]</a>    <span class="k">def</span> <span class="nf">GetTopBottomDataRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dTopRangeDBM</span><span class="p">,</span> <span class="n">dBottomRangeDBM</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return estimated Top and Bottom level using data collection, no return anything if sweep data collection is empty</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            dTopRangeDBM        -- Bottom level in dBm</span>
+<span class="sd">            dBottomRangeDBM     -- Top level in dBm</span>
+<span class="sd">            AmplitudeCorrection -- Optional parameter, can be None. If different than None, use the amplitude correction table</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Float Bottom level in dBm</span>
+<span class="sd">            Float Top level in dBm</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">dTopRangeDBM</span> <span class="o">=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MIN_AMPLITUDE_DBM</span>
+        <span class="n">dBottomRangeDBM</span> <span class="o">=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MAX_AMPLITUDE_DBM</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">nIndSample</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nUpperBound</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">nIndStep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">:</span>
+                <span class="n">dValueDBM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span><span class="p">[</span><span class="n">nIndSample</span><span class="p">]</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nIndStep</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">,</span> <span class="p">(</span><span class="n">AmplitudeCorrection</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">))</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">dTopRangeDBM</span> <span class="o">&lt;</span> <span class="n">dValueDBM</span><span class="p">):</span>
+                    <span class="n">dTopRangeDBM</span> <span class="o">=</span> <span class="n">dValueDBM</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">dBottomRangeDBM</span> <span class="o">&gt;</span> <span class="n">dValueDBM</span><span class="p">):</span>
+                    <span class="n">dBottomRangeDBM</span> <span class="o">=</span> <span class="n">dValueDBM</span>
+
+        <span class="k">return</span> <span class="n">dTopRangeDBM</span><span class="p">,</span> <span class="n">dBottomRangeDBM</span></div>
+
+<div class="viewcode-block" id="RFESweepDataCollection.ResizeCollection"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepDataCollection.html#RFExplorer.RFESweepDataCollection.RFESweepDataCollection.ResizeCollection">[docs]</a>    <span class="k">def</span> <span class="nf">ResizeCollection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nSizeToAdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change data collection size </span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            nSizeToAdd -- Number of sample to add to the sweep data collection</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrData</span> <span class="o">+=</span> <span class="p">[</span><span class="n">RFESweepData</span><span class="p">]</span> <span class="o">*</span> <span class="n">nSizeToAdd</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Cloistered Monkey.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

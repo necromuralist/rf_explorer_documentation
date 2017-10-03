@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RFExplorer.RFESweepData &#8212; RF-Explorer Documentation 2017.10.02.a documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2017.10.02.a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          RF-Explorer Documentation</a>
+        <span class="navbar-text navbar-version pull-left"><b>2017.10.02</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rfexplorer/index.html">RF-Explorer</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <h1>Source code for RFExplorer.RFESweepData</h1><div class="highlight"><pre>
+<span></span><span class="c1">#pylint: disable=trailing-whitespace, line-too-long, bad-whitespace, invalid-name, R0204, C0200</span>
+<span class="c1">#pylint: disable=superfluous-parens, missing-docstring, broad-except</span>
+<span class="c1">#pylint: disable=too-many-lines, too-many-instance-attributes, too-many-statements, too-many-nested-blocks</span>
+<span class="c1">#pylint: disable=too-many-branches, too-many-public-methods, too-many-locals, too-many-arguments, duplicate-code</span>
+
+<span class="c1">#============================================================================</span>
+<span class="c1">#RF Explorer Python Libraries - A Spectrum Analyzer for everyone!</span>
+<span class="c1">#Copyright © 2010-17 Ariel Rocholl, www.rf-explorer.com</span>
+<span class="c1">#</span>
+<span class="c1">#This application is free software; you can redistribute it and/or</span>
+<span class="c1">#modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#License as published by the Free Software Foundation; either</span>
+<span class="c1">#version 3.0 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#This software is distributed in the hope that it will be useful,</span>
+<span class="c1">#but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#You should have received a copy of the GNU General Public</span>
+<span class="c1">#License along with this library; if not, write to the Free Software</span>
+<span class="c1">#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</span>
+<span class="c1">#=============================================================================</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">RFExplorer</span> <span class="k">import</span> <span class="n">RFE_Common</span> 
+<span class="kn">from</span> <span class="nn">RFExplorer</span> <span class="k">import</span> <span class="n">RFExplorer</span> 
+
+<div class="viewcode-block" id="RFESweepData"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData">[docs]</a><span class="k">class</span> <span class="nc">RFESweepData</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class support a full sweep of data from RF Explorer, and it is used in the RFESweepDataCollection container</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fStartFreqMHZ</span><span class="p">,</span> <span class="n">fStepFreqMHZ</span><span class="p">,</span> <span class="n">nTotalSteps</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_Time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span> <span class="o">=</span> <span class="n">nTotalSteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_fStartFrequencyMHZ</span> <span class="o">=</span> <span class="n">fStartFreqMHZ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_fStepFrequencyMHZ</span> <span class="o">=</span> <span class="n">fStepFreqMHZ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span> <span class="o">=</span> <span class="p">[</span><span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MIN_AMPLITUDE_DBM</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span>     <span class="c1"># The actual data container, a consecutive set of dBm amplitude values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrBLOB</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_sBLOBString</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>   <span class="c1">#variable used to internall store byte array in string format received if is used externally</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">StartFrequencyMHZ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Start frequency </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_fStartFrequencyMHZ</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">EndFrequencyMHZ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get End frequency</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetFrequencyMHZ</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">StepFrequencyMHZ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Step frequency between each sweep step</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_fStepFrequencyMHZ</span>
+    <span class="nd">@StepFrequencyMHZ</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">StepFrequencyMHZ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_fStepFrequencyMHZ</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">TotalSteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Total number of sweep steps captured</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">CaptureTime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The time when this data sweep was created, it should match as much as</span>
+<span class="sd">        possible the real data capture</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_Time</span>
+    <span class="nd">@CaptureTime</span><span class="o">.</span><span class="n">setter</span> 
+    <span class="k">def</span> <span class="nf">CaptureTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>       
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_Time</span> <span class="o">=</span> <span class="n">value</span>
+    
+<div class="viewcode-block" id="RFESweepData.ProcessReceivedString"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.ProcessReceivedString">[docs]</a>    <span class="k">def</span> <span class="nf">ProcessReceivedString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sLine</span><span class="p">,</span> <span class="n">fOffsetDB</span><span class="p">,</span> <span class="n">bBLOB</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bString</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function will process a received, full consistent string received from remote device</span>
+<span class="sd">        and fill it in all data</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            sLine     -- String received from device, previously parsed and validated</span>
+<span class="sd">            fOffsetDB -- Currently specified offset in DB</span>
+<span class="sd">            bBLOB     -- If true the internal BLOB object will be filled in for later use in GetBLOB</span>
+<span class="sd">            bString   -- If true the internal string object will be filled in for later use in GetBLOBString</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean True if parsing was ok, False otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">bOk</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">sLine</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sLine</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$S&quot;</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">bBLOB</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">m_arrBLOB</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span>
+                <span class="n">objSweep</span> <span class="o">=</span> <span class="n">RFESweepData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">)</span>
+                <span class="n">objSweep</span><span class="o">.</span><span class="n">CaptureTime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                <span class="c1">#print(&quot;sLine length: &quot; + str(len(sLine)) +&quot; - &quot;+ &quot;TotalSteps:</span>
+                <span class="c1">#&quot; + str(self.TotalSteps))</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">bString</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">m_sBLOBString</span> <span class="o">=</span> <span class="n">sLine</span><span class="p">[</span><span class="mi">2</span><span class="p">:(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)]</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sLine: &quot;</span> <span class="o">+</span> <span class="n">sLine</span><span class="p">[</span><span class="mi">2</span><span class="p">:(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)])</span>
+                <span class="k">for</span> <span class="n">nInd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">):</span>
+                    <span class="c1">#print(&quot;sLine byte: &quot; + sLine[2 + nInd])</span>
+                    <span class="n">nVal</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">sLine</span><span class="p">[</span><span class="mi">2</span> <span class="o">+</span> <span class="n">nInd</span><span class="p">])</span>
+                    <span class="n">fVal</span> <span class="o">=</span> <span class="n">nVal</span> <span class="o">/</span> <span class="o">-</span><span class="mf">2.0</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">bBLOB</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">m_arrBLOB</span><span class="p">[</span><span class="n">nInd</span><span class="p">]</span> <span class="o">=</span> <span class="n">nVal</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">SetAmplitudeDBM</span><span class="p">(</span><span class="n">nInd</span><span class="p">,</span> <span class="n">fVal</span> <span class="o">+</span> <span class="n">fOffsetDB</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bOk</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">obEx</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in RFEScreenData - ProcessReceivedString(): &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">obEx</span><span class="p">))</span>
+            <span class="n">bOk</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">bOk</span></div>
+    
+<div class="viewcode-block" id="RFESweepData.GetAmplitude_DBM"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetAmplitude_DBM">[docs]</a>    <span class="k">def</span> <span class="nf">GetAmplitude_DBM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nStep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns amplitude data in dBm.  This is the value as it was read from</span>
+<span class="sd">        the device or from a file so it is not adjusted by offset or additionally compensated in any way.</span>
+<span class="sd">        If the value was read from a device, it may already be an adjusted value including device configured offset.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            nStep -- Internal frequency step or bucket to read data from</span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Float Value in dBm</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nStep</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RFESweepData.GetAmplitudeDBM"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetAmplitudeDBM">[docs]</a>    <span class="k">def</span> <span class="nf">GetAmplitudeDBM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nStep</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">,</span> <span class="n">bUseCorrection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns amplitude data in dBm. This is the value as it was read from </span>
+<span class="sd">        the device or from a file so it is not adjusted by offset or additionally compensated in any way. </span>
+<span class="sd">        If the value was read from a device,</span>
+<span class="sd">        it may already be an adjusted value including device configured offset.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            nStep               -- Internal frequency step or bucket to read data from</span>
+<span class="sd">            AmplitudeCorrection -- Optional parameter, can be None. If different than None, use the amplitude correction table</span>
+<span class="sd">            bUseCorrection      -- If the AmplitudeCorrection is not None, this boolean will tell whether to use it or not</span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Float Value in dBm</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nStep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">AmplitudeCorrection</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bUseCorrection</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nStep</span><span class="p">]</span> <span class="o">+</span> <span class="n">AmplitudeCorrection</span><span class="o">.</span><span class="n">GetAmplitudeCalibration</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetFrequencyMHZ</span><span class="p">(</span><span class="n">nStep</span><span class="p">)))</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nStep</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MIN_AMPLITUDE_DBM</span></div>
+
+<div class="viewcode-block" id="RFESweepData.SetAmplitudeDBM"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.SetAmplitudeDBM">[docs]</a>    <span class="k">def</span> <span class="nf">SetAmplitudeDBM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nStep</span><span class="p">,</span> <span class="n">fDBM</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set Amplitude in dBm </span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            nStep -- Internal frequency step or bucket where to set data</span>
+<span class="sd">            fDBM  -- New value in dBm</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nStep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nStep</span><span class="p">]</span> <span class="o">=</span> <span class="n">fDBM</span></div>
+
+<div class="viewcode-block" id="RFESweepData.GetFrequencyMHZ"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetFrequencyMHZ">[docs]</a>    <span class="k">def</span> <span class="nf">GetFrequencyMHZ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nStep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get frequency in MHz </span>
+<span class="sd">            </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            nStep -- Internal frequency step or bucket to read data from</span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Float Frequency in MHz, zero otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nStep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_fStartFrequencyMHZ</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_fStepFrequencyMHZ</span> <span class="o">*</span> <span class="n">nStep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span></div>
+
+<div class="viewcode-block" id="RFESweepData.GetFrequencySpanMHZ"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetFrequencySpanMHZ">[docs]</a>    <span class="k">def</span> <span class="nf">GetFrequencySpanMHZ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get frequency span in MHz</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Float Frequency span in MHz</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_fStepFrequencyMHZ</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RFESweepData.GetMinStep"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetMinStep">[docs]</a>    <span class="k">def</span> <span class="nf">GetMinStep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the step of the lowest amplitude value found</span>
+<span class="sd">                </span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Integer The step of the lowest amplitude value</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">nStep</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fMin</span> <span class="o">=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MAX_AMPLITUDE_DBM</span>
+        <span class="k">for</span> <span class="n">nInd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">fMin</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nInd</span><span class="p">]):</span>
+                <span class="n">fMin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nInd</span><span class="p">]</span>
+                <span class="n">nStep</span> <span class="o">=</span> <span class="n">nInd</span>
+        <span class="k">return</span> <span class="n">nStep</span></div>
+
+<div class="viewcode-block" id="RFESweepData.GetPeakStep"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetPeakStep">[docs]</a>    <span class="k">def</span> <span class="nf">GetPeakStep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the step of the highest amplitude value found</span>
+<span class="sd">                        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Integer The step of the highest amplitude value</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">nStep</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fPeak</span> <span class="o">=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MIN_AMPLITUDE_DBM</span>
+
+        <span class="k">for</span> <span class="n">nInd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">fPeak</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nInd</span><span class="p">]):</span>
+                <span class="n">fPeak</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nInd</span><span class="p">]</span>
+                <span class="n">nStep</span> <span class="o">=</span> <span class="n">nInd</span>
+        <span class="k">return</span> <span class="n">nStep</span></div>
+
+<div class="viewcode-block" id="RFESweepData.IsSameConfiguration"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.IsSameConfiguration">[docs]</a>    <span class="k">def</span> <span class="nf">IsSameConfiguration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objOther</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compare new object configuration with stored configuration data</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            objOther -- New configuration object</span>
+<span class="sd">        Returns:</span>
+<span class="sd">		    Boolean True if they are the same, False otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">objOther</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span> <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">objOther</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span> <span class="ow">and</span> <span class="p">(</span><span class="n">objOther</span><span class="o">.</span><span class="n">TotalSteps</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RFESweepData.Duplicate"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.Duplicate">[docs]</a>    <span class="k">def</span> <span class="nf">Duplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Duplicate RFESweepData object</span>
+
+<span class="sd">        Returns: </span>
+<span class="sd">            RFESweepData  Duplicate object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">objSweep</span> <span class="o">=</span> <span class="n">RFESweepData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">)</span>
+
+        <span class="n">objSweep</span><span class="o">.</span><span class="n">m_arrAmplitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">objSweep</span></div>
+
+<div class="viewcode-block" id="RFESweepData.GetChannelPowerDBM"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.GetChannelPowerDBM">[docs]</a>    <span class="k">def</span> <span class="nf">GetChannelPowerDBM</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns power channel over the full span being captured. The power is instantaneous real time</span>
+<span class="sd">        For average power channel use the collection method GetAverageChannelPower().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">		    Float Channel power in dBm/span</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">fChannelPower</span> <span class="o">=</span> <span class="n">RFE_Common</span><span class="o">.</span><span class="n">CONST_MIN_AMPLITUDE_DBM</span>
+        <span class="n">fPowerTemp</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">nInd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_nTotalSteps</span><span class="p">):</span>
+            <span class="n">fPowerTemp</span> <span class="o">+=</span> <span class="n">RFExplorer</span><span class="o">.</span><span class="n">Convert_dBm_2_mW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_arrAmplitude</span><span class="p">[</span><span class="n">nInd</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">fPowerTemp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="c1">#add here actual RBW calculation in the future - currently we are</span>
+            <span class="c1">#assuming frequency step is the same</span>
+            <span class="c1">#as RBW which is not 100% accurate.</span>
+            <span class="n">fChannelPower</span> <span class="o">=</span> <span class="n">RFExplorer</span><span class="o">.</span><span class="n">Convert_mW_2_dBm</span><span class="p">(</span><span class="n">fPowerTemp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fChannelPower</span></div>
+
+<div class="viewcode-block" id="RFESweepData.Dump"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.Dump">[docs]</a>    <span class="k">def</span> <span class="nf">Dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Dump a CSV string line with sweep data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String All sweep data in CSV format</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="n">sResult</span> <span class="o">=</span> <span class="s2">&quot;Sweep data: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">StartFrequencyMHZ</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="s2">&quot;MHz &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">StepFrequencyMHZ</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;MHz &quot;</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="s2">&quot;Steps: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">nStep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">nStep</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">sResult</span> <span class="o">+=</span> <span class="s2">&quot;,&quot;</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">nStep</span> <span class="o">%</span> <span class="mi">16</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">sResult</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">sResult</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:04.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nStep</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">sResult</span></div>
+
+<div class="viewcode-block" id="RFESweepData.SaveFileCSV"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFESweepData.html#RFExplorer.RFESweepData.RFESweepData.SaveFileCSV">[docs]</a>    <span class="k">def</span> <span class="nf">SaveFileCSV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sFilename</span><span class="p">,</span> <span class="n">cCSVDelimiter</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save a CSV file using one frequency point/dBm value per line</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            sFilename           -- Full path filename</span>
+<span class="sd">            cCSVDelimiter       -- Comma delimiter to use</span>
+<span class="sd">            AmplitudeCorrection -- Optional parameter, can be None. If different than None, use the amplitude correction table</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sFilename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">objWriter</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">nStep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSteps</span><span class="p">):</span>
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetFrequencyMHZ</span><span class="p">(</span><span class="n">nStep</span><span class="p">)))</span>
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cCSVDelimiter</span><span class="p">)</span>
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.1f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetAmplitudeDBM</span><span class="p">(</span><span class="n">nStep</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span><span class="p">,</span> <span class="n">AmplitudeCorrection</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)))</span>
+                    <span class="n">objWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">obEx</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">obEx</span><span class="p">))</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Cloistered Monkey.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
