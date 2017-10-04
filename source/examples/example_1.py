@@ -9,7 +9,7 @@ import RFExplorer
 CSV_LINE = "{0},{1},{2}"
 HUMAN_LINE = "Sweep[{0}]: Peak: {1:.3f} MHz\t{2} dBm"
 
-def PrintPeak(rf_explorer, csv_data=False):
+def print_peak(rf_explorer, csv_data=False):
     """This function prints the amplitude and frequency peak of the latest received sweep
 
     Args:
@@ -28,45 +28,97 @@ def PrintPeak(rf_explorer, csv_data=False):
     return
 
 
+class CommunicatorException(Exception):
+    """The Communicator should raise this if something bad happens"""
+
 class Communicator(object):
     """holds the communication object
+
+    Args:
+     serial_port (string|None): the name of the USB file
+     baud_rate (int): the signaling rate for the serial connection
+     settle_time (float): Seconds to wait after resetting
     """
-    def __init__(self):
-        self._rfe = None
+    def __init__(self, serial_port=None, baud_rate=500000, settle_time=3):
+        self.serial_port = serial_port
+        self.baud_rate = baud_rate
+        self.settle_time = settle_time
+        self._rf_explorer = None
         return
 
     @property
-    def rfe(self):
+    def rf_explorer(self):
         """RFE Communicator
+    
         Returns:
          :py:class:`RFExplorer.RFECommunicator`: the communicator
         """
-        if self._rfe is None:
-            self._rfe = RFExplorer.RFECommunicator()
-        return self._rfe
-
+        if self._rf_explorer is None:
+            self._rf_explorer = RFExplorer.RFECommunicator()
+        return self._rf_explorer
+    
     def __enter__(self):
         """returns this object"""
         return self
-
-
+    
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
         return
-
+    
     def __del__(self):
         """closes the RFECommunicator"""
         self.close()
-
+    
     def close(self):
         """Closes the RFECommunicator
         
         Side-Effect:
-         calls `RFExplorer.RFECommunicator.Close`
+         calls `RFExplorer.RFECommunicator.Close` and removes the instance
         """
-        if self._rfe is not None:
-            self.rfe.Close()
-            self._rfe = None
+        if self._rf_explorer is not None:
+            self.rf_explorer.Close()
+            self._rf_explorer = None
+        return
+
+    def set_up(self):
+        """Sets up the rf-explorer for scanning
+    
+        Raises:
+         CommunicatorException: the setup failed
+        """
+        # get candidate serial ports and print out what you discovered
+        self.rf_explorer.GetConnectedPorts()
+
+        #Connect to available port
+        if (not self.rf_explorer.ConnectPort(self.serial_port, self.baud_rate)):
+            raise CommunicatorException("Unable to connect: port={}, baud={}".format(
+                self.serial_port,
+                self.baud_rate))
+
+        print("Sending the Reset Command")
+        self.rf_explorer.SendCommand("r")
+        
+        print("Waiting until the device resets")
+        while(self.rf_explorer.IsResetEvent):
+            pass
+        
+        print("Reset, sleeping for {} seconds to let the device settle".format(
+            self.settle_time))
+        time.sleep(self.settle_time)
+
+        print("requesting the RF Explorer configuration")
+        self.rf_explorer.SendCommand_RequestConfigData()
+        
+        print("Waiting for the model to not be None")
+        while(self.rf_explorer.ActiveModel == RFExplorer.RFE_Common.eModel.MODEL_NONE):
+            self.rf_explorer.ProcessReceivedString(True)
+        
+        print("Model is set")
+
+        #If object is an analyzer, we can scan for received sweeps
+        if (not self.rf_explorer.IsAnalyzer()):     
+            raise CommunicatorError("Error: Device connected is a Signal Generator. "
+                                    "\nPlease, connect a Spectrum Analyzer")
         return
 
 def main(arguments, communicator):
@@ -76,45 +128,9 @@ def main(arguments, communicator):
      arguments (argparse.Namespace): object with the settings
      communicator (Communicator): object with the RFECommunicator
     """
-    rf_explorer = communicator.rfe
+    rf_explorer = communicator.rf_explorer
     try:
-        # get candidate serial ports and print out what you discovered
-        rf_explorer.GetConnectedPorts()
-
-        #Connect to available port
-        if (not rf_explorer.ConnectPort(arguments.serialport, arguments.baud_rate)):
-            print("Not Connected")
-            return
-
-        #Reset the unit to start fresh
-        print("sending the Reset Command")
-        rf_explorer.SendCommand("r")
-        
-        #Wait for unit to notify reset completed
-        print("Waiting until the device resets")
-        while(rf_explorer.IsResetEvent):
-            pass
-        
-        #Wait for unit to stabilize
-        print("Reset, sleeping for 3 seconds")
-        time.sleep(3)
-
-        #Request RF Explorer configuration
-        print("requesting the configuration data")
-        rf_explorer.SendCommand_RequestConfigData()
-        #Wait to receive configuration and model details
-        print("Waiting for the model to not be None")
-        while(rf_explorer.ActiveModel == RFExplorer.RFE_Common.eModel.MODEL_NONE):
-            rf_explorer.ProcessReceivedString(True)    #Process the received configuration
-        
-        print("Model is set")
-
-        #If object is an analyzer, we can scan for received sweeps
-        if (not rf_explorer.IsAnalyzer()):     
-            print("Error: Device connected is a Signal Generator. "
-                  "\nPlease, connect a Spectrum Analyzer")
-            return
-
+        communicator.set_up()
         print("Receiving data...")
         #Process until we complete scan time
         last_index = 0
@@ -129,13 +145,18 @@ def main(arguments, communicator):
             rf_explorer.ProcessReceivedString(True)
             #Print data if received new sweep only
             if (rf_explorer.SweepData.Count > last_index):
-                PrintPeak(rf_explorer, arguments.csv_data)
+                print_peak(rf_explorer, arguments.csv_data)
                 last_index = rf_explorer.SweepData.Count          
-    except Exception as obEx:
-        print("Error: " + str(obEx))
+    except Exception as error:
+        print("Error: ".format(error))
     return
 
-def parse_arguments():
+def argument_parser():
+    """Builds the argument parser
+    
+    Returns:
+     ArgumentParser: object to parse the arguments
+    """
     parser = argparse.ArgumentParser("RF Explorer Example One")
     parser.add_argument(
         "--serialport", type=str,
@@ -151,9 +172,11 @@ def parse_arguments():
         "--csv-data", action="store_true",
         help="Output csv-formatted data",
     )
-    return parser.parse_args()
+    return parser
 
 if __name__ == "__main__":
-    arguments = parse_arguments()
-    with Communicator() as communicator:        
+    parser = argument_parser()
+    arguments = parser.parse_args()
+
+    with Communicator(arguments.serialport, arguments.baud_rate) as communicator:        
         main(arguments, communicator)
