@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RFExplorer.RFE_Common &#8212; RF-Explorer Documentation 2017.10.02.a documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2017.10.02.a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          RF-Explorer Documentation</a>
+        <span class="navbar-text navbar-version pull-left"><b>2017.10.02</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rfexplorer/index.html">RF-Explorer API</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <h1>Source code for RFExplorer.RFE_Common</h1><div class="highlight"><pre>
+<span></span><span class="c1">#pylint: disable=trailing-whitespace, line-too-long, bad-whitespace, invalid-name, R0204, C0200</span>
+<span class="c1">#pylint: disable=superfluous-parens, missing-docstring, broad-except</span>
+<span class="c1">#pylint: disable=too-many-lines, too-many-instance-attributes, too-many-statements, too-many-nested-blocks</span>
+<span class="c1">#pylint: disable=too-many-branches, too-many-public-methods, too-many-locals, too-many-arguments</span>
+
+<span class="c1">#============================================================================</span>
+<span class="c1">#RF Explorer Python Libraries - A Spectrum Analyzer for everyone!</span>
+<span class="c1">#Copyright © 2010-17 Ariel Rocholl, www.rf-explorer.com</span>
+<span class="c1">#</span>
+<span class="c1">#This application is free software; you can redistribute it and/or</span>
+<span class="c1">#modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#License as published by the Free Software Foundation; either</span>
+<span class="c1">#version 3.0 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#This software is distributed in the hope that it will be useful,</span>
+<span class="c1">#but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#You should have received a copy of the GNU General Public</span>
+<span class="c1">#License along with this library; if not, write to the Free Software</span>
+<span class="c1">#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</span>
+<span class="c1">#=============================================================================</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+
+<span class="n">CONST_RFEXPLORER_FIRMWARE_CERTIFIED</span> <span class="o">=</span> <span class="s2">&quot;01.15&quot;</span>  <span class="c1">#Firmware version of RF Explorer which was tested and certified with this PC Client</span>
+
+<span class="n">CONST_FCY_CLOCK</span> <span class="o">=</span> <span class="mi">16</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span>   <span class="c1">#RFECommunicator - public const UInt32 FCY_CLOCK = 16 * 1000 * 1000</span>
+<span class="n">CONST_MIN_AMPLITUDE_DBM</span> <span class="o">=</span> <span class="o">-</span><span class="mf">120.0</span>   <span class="c1">#RFECommunicator - public const float MIN_AMPLITUDE_DBM = -120.0f</span>
+<span class="n">CONST_MAX_SPECTRUM_STEPS</span> <span class="o">=</span> <span class="mi">65535</span>   <span class="c1">#RFECommunicator - public const UInt16 MAX_SPECTRUM_STEPS = 65535</span>
+<span class="n">CONST_MAX_AMPLITUDE_DBM</span> <span class="o">=</span> <span class="mf">50.0</span>  <span class="c1">#RFECommunicator - public const float MAX_AMPLITUDE_DBM = 50.0f</span>
+<span class="n">CONST_MAX_ELEMENTS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1000</span><span class="p">)</span>     <span class="c1">#This is the absolute max size that can be allocated</span>
+<span class="n">CONST_FILE_VERSION</span> <span class="o">=</span> <span class="mi">2</span>         <span class="c1">#File format constant indicates the latest known and supported file format</span>
+<span class="n">CONST_ACKNOWLEDGE</span> <span class="o">=</span> <span class="s2">&quot;#ACK&quot;</span>
+
+<span class="n">CONST_RFGEN_MIN_FREQ_MHZ</span> <span class="o">=</span> <span class="mf">23.438</span>
+<span class="n">CONST_RFGEN_MAX_FREQ_MHZ</span> <span class="o">=</span> <span class="mi">6000</span>
+
+<span class="n">CONST_RESETSTRING</span> <span class="o">=</span> <span class="s2">&quot;(C) Ariel Rocholl &quot;</span>
+
+<span class="n">CONST_POS_INTERNAL_CALIBRATED_6G</span> <span class="o">=</span> <span class="mi">134</span>  <span class="c1">#start position for 6G model</span>
+<span class="n">CONST_POS_INTERNAL_CALIBRATED_MWSUB3G</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1">#start position for MWSUB3G model</span>
+<span class="n">CONST_POS_INTERNAL_CALIBRATED_WSUB1G</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1">#start position for WSUB1G model</span>
+<span class="n">CONST_POS_END_INTERNAL_CALIBRATED_WSUB1G</span> <span class="o">=</span> <span class="mi">58</span>   <span class="c1">#end position for WSUB1G, that is, POS_INTERNAL_CALIBRATED_WSUB1G = 15 + WSUB1G calibration data size = 43</span>
+<span class="n">CONST_POS_INTERNAL_CALIBRATED_WSUB1G_PLUS</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1">#start position for WSUB1G+ model</span>
+<span class="n">CONST_POS_END_INTERNAL_CALIBRATED_WSUB1G_PLUS</span> <span class="o">=</span> <span class="mi">258</span> <span class="c1">#end position for WSUB1G+, that is, POS_INTERNAL_CALIBRATED_WSUB1G_PLUS = 0 + WSUB1G calibration data size = 258 ((R1+R2+R3)86 x 3)</span>
+
+<span class="c1">#---------------------------------------------------------</span>
+
+<div class="viewcode-block" id="eModel"><a class="viewcode-back" href="../../rfexplorer/autogenerated_api/RFExplorer.RFE_Common.eModel.html#RFExplorer.RFE_Common.eModel">[docs]</a><span class="k">class</span> <span class="nc">eModel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;All possible RF Explorer model values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MODEL_433</span> <span class="o">=</span> <span class="mi">0</span>  
+    <span class="n">MODEL_868</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MODEL_915</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">MODEL_WSUB1G</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">MODEL_2400</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">MODEL_WSUB3G</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">MODEL_6G</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">MODEL_WSUB1G_PLUS</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">MODEL_RFGEN</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">MODEL_NONE</span> <span class="o">=</span> <span class="mh">0xFF</span></div>
+
+<span class="k">class</span> <span class="nc">eMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The current operational mode</span>
+<span class="sd">	&quot;&quot;&quot;</span> 
+    <span class="n">MODE_SPECTRUM_ANALYZER</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MODE_TRANSMITTER</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MODE_WIFI_ANALYZER</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">MODE_TRACKING</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">MODE_SNIFFER</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="n">MODE_GEN_CW</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">MODE_GEN_SWEEP_FREQ</span> <span class="o">=</span> <span class="mi">61</span>
+    <span class="n">MODE_GEN_SWEEP_AMP</span> <span class="o">=</span> <span class="mi">62</span>
+
+    <span class="n">MODE_NONE</span> <span class="o">=</span> <span class="mh">0xFF</span>
+
+<span class="k">class</span> <span class="nc">eCalculator</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;The current configured calculator in the device</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+    <span class="n">NORMAL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MAX</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">AVG</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">OVERWRITE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">MAX_HOLD</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">MAX_HISTORICAL</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mh">0xff</span>
+
+<span class="k">class</span> <span class="nc">eModulation</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;Modulation being used </span>
+<span class="sd">	&quot;&quot;&quot;</span>   
+    <span class="n">MODULATION_OOK_RAW</span> <span class="o">=</span> <span class="mi">0</span> 
+    <span class="n">MODULATION_PSK_RAW</span> <span class="o">=</span> <span class="mi">1</span>   
+    <span class="n">MODULATION_OOK_STD</span> <span class="o">=</span> <span class="mi">2</span>    
+    <span class="n">MODULATION_PSK_STD</span> <span class="o">=</span> <span class="mi">3</span>   
+    <span class="n">MODULATION_NONE</span> <span class="o">=</span> <span class="mh">0xFF</span> 
+
+<span class="k">class</span> <span class="nc">eDSP</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>    
+    <span class="sd">&quot;&quot;&quot;All possible DSP values</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+    <span class="n">DSP_AUTO</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DSP_FILTER</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">DSP_FAST</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">DSP_NO_IMG</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1">#---------------------------------------------------------</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Cloistered Monkey.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
