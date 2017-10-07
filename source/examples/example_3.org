@@ -1,38 +1,12 @@
 #+TITLE: RF-Explorer Example Three
 
 * Description
-  This is a variation on example one that records the entire spectrum instead of just the peak.
+  This is a variation on example one that dumps the entire spectrum instead of just the peak.
 
 * Tangle
 
 #+BEGIN_SRC ipython :session example3 :tangle example_3.py
 <<imports>>
-
-<<line-formats>>
-
-<<print-peak>>
-    <<get-data>>
-    <<get-peak-data>>
-<<global-variables>>
-
-<<communicator-exception>>
-
-<<communicator>>
-
-    <<rfe-property>>
-    
-    <<context-management>>
-
-    <<communicator-setup>>
-        <<get-ports>>
-
-        <<connect-port>>
-
-        <<reset-explorer>>
-
-        <<get-model>>
-
-        <<analyzer-check>>
 
 <<main>>
         <<setup-communicator>>
@@ -41,227 +15,20 @@
             <<print-data>>
     <<end-main>>
 
-<<argument-parser>>
-    <<serial-port>>
-    <<baud-rate>>
-    <<run-time>>
-    <<csv-data>>
-    <<return-arguments>>
-
 <<executable-block>>
-    <<cleanup>>
 #+END_SRC
 
 * Imports
 #+BEGIN_SRC ipython :session example3 :results none :noweb-ref imports
 # python standard library
-import argparse
-import time
 from datetime import datetime, timedelta
 
-# from pypi
-import RFExplorer
+# from this package
+from example_1 import (
+    argument_parser,
+    Communicator,
+    )
 #+END_SRC
-
-* Print Peak
-  This is a helper function to get only the peak data from the sweep and print it to stdout.
-
-** Line Formats
-   These are the output formats for each line.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref line-formats
-CSV_LINE = "{0},{1},{2}"
-HUMAN_LINE = "Sweep[{0}]: Peak: {1:.3f} MHz\t{2} dBm"
-#+END_SRC
-
-#+BEGIN_SRC ipython :session example3 :results output :noweb-ref print-peak
-def print_peak(rf_explorer, csv_data=False):
-    """This function prints the amplitude and frequency peak of the latest received sweep
-
-    Args:
-     rfe_explorer (`RFExplorer.RFECommunicator`): communicator to get data from
-     csv_data (bool): if True, print as CSV output
-    """
-#+END_SRC
-
-** Get The Data
-
-   This gets the current data-count from =RFExplorer.RFECommunicator.Count, decrements it to get the current index, then gets the data from =RFExplorer.RFECommunicator.SweepData.GetData=.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref get-data
-index = rf_explorer.SweepData.Count - 1
-sweep_data = rf_explorer.SweepData.GetData(index)
-#+END_SRC
-
-The sweep_data is an instance of =RFExplorer.RFESweepData.RFESweepData=.
-
-** Get The Peak Data
-   In this case we aren't printing all the data, just the peak.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref get-peak-data
-peak_step = sweep_data.GetPeakStep()      #Get index of the peak
-peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)    #Get amplitude of the peak
-peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)   #Get frequency of the peak
-
-line = CSV_LINE if csv_data else HUMAN_LINE
-
-print(line.format(index, peak_frequency, peak_amplitude)) 
-return
-#+END_SRC
-
-* Communicator Exception
-  This is an error to raise if something goes wrong.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref communicator-exception
-class CommunicatorException(Exception):
-    """The Communicator should raise this if something bad happens"""
-#+END_SRC
-* The Communicator
-
-  This is a class to hold the rfe-object to take care of some common actions.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref communicator
-class Communicator(object):
-    """holds the communication object
-
-    Args:
-     serial_port (string|None): the name of the USB file
-     baud_rate (int): the signaling rate for the serial connection
-     settle_time (float): Seconds to wait after resetting
-    """
-    def __init__(self, serial_port=None, baud_rate=500000, settle_time=3):
-        self.serial_port = serial_port
-        self.baud_rate = baud_rate
-        self.settle_time = settle_time
-        self._rf_explorer = None
-        return
-#+END_SRC
-
-** The RFE Instance
-
-   This is the :py:class:`RFExplorer.RFECommunicator` instance.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref rfe-property
-@property
-def rf_explorer(self):
-    """RFE Communicator
-
-    Returns:
-     :py:class:`RFExplorer.RFECommunicator`: the communicator
-    """
-    if self._rf_explorer is None:
-        self._rf_explorer = RFExplorer.RFECommunicator()
-    return self._rf_explorer
-#+END_SRC
-
-** Context Management
-   These are the methods that allow you to use this with a context manager.
-
-#+BEGIN_EXAMPLE
-with Communicator() as rfe:
-    rfe.set_up()
-#+END_EXAMPLE
-
-When you leave the ``with`` statement it will close the RFECommunicator for you.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref context-management
-def __enter__(self):
-    """returns this object"""
-    return self
-
-def __exit__(self, exc_type, exc_value, traceback):
-    self.close()
-    return
-
-def __del__(self):
-    """closes the RFECommunicator"""
-    self.close()
-
-def close(self):
-    """Closes the RFECommunicator
-    
-    Side-Effect:
-     calls `RFExplorer.RFECommunicator.Close` and removes the instance
-    """
-    if self._rf_explorer is not None:
-        self.rf_explorer.Close()
-        self._rf_explorer = None
-    return
-#+END_SRC
-
-** The =set_up= Method
-   This method runs the things that need to be done before doing a sweep of the spectrum.
-   
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref communicator-setup
-def set_up(self):
-    """Sets up the rf-explorer for scanning
-
-    Raises:
-     CommunicatorException: the setup failed
-    """
-#+END_SRC
-
-** Get the ports
-
-The =RFExplorer.RFECommunicator.GetConnectedPorts= will gather what it thinks are possible ports that the RF-Explorer might be attached to. As a side-effect it will print the ports it found to stdout.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref get-ports
-# get candidate serial ports and print out what you discovered
-self.rf_explorer.GetConnectedPorts()
-#+END_SRC
-
-** Connect to the RFExplorer
-   The =RFExplorer.RFECommunicator.ConnectPort= will try to connect to the RFExplorer. If =serial_port= is =None= then it will try each candidate port in order. On my desktop this currently fails (I think because it tries =/dev/ttyS4= first) so I have to pass in =/dev/ttyUSB0= explicitly to make it work.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref connect-port
-#Connect to available port
-if (not self.rf_explorer.ConnectPort(self.serial_port, self.baud_rate)):
-    raise CommunicatorException("Unable to connect: port={}, baud={}".format(
-        self.serial_port,
-        self.baud_rate))
-#+END_SRC
-
-** Reset The Device
-   This sends the reset command ("r") using =RFExplorer.RFECommunicator.SendCommand=, then waits forever for the =RFExplorer.RFECommunicator.IsResetEvent= attribute to change to False. Once the device indicates that it is out of the reset-state it sleeps for three seconds to let things settle down.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref reset-explorer
-print("Sending the Reset Command")
-self.rf_explorer.SendCommand("r")
-
-print("Waiting until the device resets")
-while(self.rf_explorer.IsResetEvent):
-    pass
-
-print("Reset, sleeping for {} seconds to let the device settle".format(
-    self.settle_time))
-time.sleep(self.settle_time)
-#+END_SRC
-    
-** The Model And Configuration
-
-   Most of the methods you want to use assume that the configuration has been set up. This loop makes the request to set it up and then waits forever for the model to be set (waits for =RFExplorer.RFECommunicator.ActiveModel= to not equal =RFExplorer.RFE_Common.eModel.MODEL_NONE=). The =RFExplorer= has to be prompted to process the information that the thread is reading off the serial port so in between checking if the model is set it calls =RFExplorer.RFECommunicator.ProcessReceivedString= to tell it to do so.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref get-model
-print("requesting the RF Explorer configuration")
-self.rf_explorer.SendCommand_RequestConfigData()
-
-print("Waiting for the model to not be None")
-while(self.rf_explorer.ActiveModel == RFExplorer.RFE_Common.eModel.MODEL_NONE):
-    self.rf_explorer.ProcessReceivedString(True)
-
-print("Model is set")
-#+END_SRC
-** Analyzer Check
-   The =RFExplorer= can talk to both spectrum analyzers and signal generators, but this code will only work with the spectrum analyzer, so use the =RFExplorer.RFECommunicator.IsAnalyzer= method to make sure that's what this is
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref analyzer-check
-#If object is an analyzer, we can scan for received sweeps
-if (not self.rf_explorer.IsAnalyzer()):     
-    raise CommunicatorError("Error: Device connected is a Signal Generator. "
-                            "\nPlease, connect a Spectrum Analyzer")
-return
-#+END_SRC
-
 
 * The Main processing loop
 
@@ -309,12 +76,11 @@ rf_explorer.ProcessReceivedString(True)
 #+END_SRC
 
 ** Print The Data
-   This checks the =RFExplorer.RFECommunicator.SweepData.Count= to see if it is new data and then, if it is, calls the =print_peak= function (defined above) to print the data to the screen and then updates the =last_index= that we printed.
+   This checks the =RFExplorer.RFECommunicator.SweepData.Count= to see if it is new data and then, if it is, Dumps the data to the screen. This is the only part that differs from example 1.
 
 #+BEGIN_SRC ipython :session example3 :results none :noweb-ref print-data
 #Print data if received new sweep only
 if (rf_explorer.SweepData.Count > last_index):
-    # print_peak(rf_explorer, arguments.csv_data)
     print(rf_explorer.SweepData.Dump())
     last_index = rf_explorer.SweepData.Count          
 #+END_SRC
@@ -328,62 +94,6 @@ except Exception as error:
 return
 #+END_SRC
 
-* The Argument Parser
-
-  This creates the parser for the command-line arguments. It doesn't parse the arguments because example-two uses it after adding more arguments.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref argument-parser
-def argument_parser():
-    """Builds the argument parser
-    
-    Returns:
-     ArgumentParser: object to parse the arguments
-    """
-    parser = argparse.ArgumentParser("RF Explorer Example One")
-#+END_SRC
-
-** Serial Port
-   If the `RFExplorer.RFECommunicator.ConnectPort` isn't given a serial port it will try all the likely ports until it does or doesn't connect. If this doesn't work then pass in a specific port (e.g. =/dev/ttyUSB0=).
-   
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref serial-port
-parser.add_argument(
-    "--serialport", type=str,
-    help="Path to the serial-port file (e.g. '/dev/ttyUSB0') - Default=%(default)s")
-#+END_SRC
-
-** Baud Rate
-   The baud-rate should be 500,000. Don't change it unless you know something changed.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref baud-rate
-parser.add_argument(
-    "--baud-rate", type=int, default=500000,
-    help="Baud-rate for the serial port (default=%(default)s)")
-#+END_SRC
-
-** Run-Time
-   This is the number of seconds to collect data before quitting.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref run-time
-parser.add_argument(
-    "--run-time", type=int, default=10,
-    help="Seconds to collect data (default=%(default)s)"
-)
-#+END_SRC
-
-** CSV Data
-   This tells the code to print a CSV format instead of the usual (human-readable) format.
-
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref csv-data
-parser.add_argument(
-    "--csv-data", action="store_true",
-    help="Output csv-formatted data",
-)
-#+END_SRC
-
-** Return The parser
-#+BEGIN_SRC ipython :session example3 :results none :noweb-ref return-arguments
-return parser
-#+END_SRC
 
 * The Executable Block
 
