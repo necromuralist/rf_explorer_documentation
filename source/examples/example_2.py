@@ -104,11 +104,12 @@ def main(arguments, communicator):
                 if (StartFreq < StopFreq):
                     print("Updating device config")
                     rf_explorer.UpdateDeviceConfig(StartFreq, StopFreq)
-                    import pudb; pudb.set_trace()
                     #Wait for new configuration to arrive (as it will clean up old sweep data)
                     sweep_data = None
                     print("Waiting for sweep_data update")
                     while ((sweep_data is None) or sweep_data.StartFrequencyMHZ != StartFreq):
+                        if rf_explorer.SweepData.IsFull():
+                            print("Sweep Data Collection is Full")
                         rf_explorer.ProcessReceivedString(True)
                         if (rf_explorer.SweepData.Count > 0):
                             sweep_data = rf_explorer.SweepData.GetData(rf_explorer.SweepData.Count-1)

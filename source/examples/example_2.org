@@ -21,7 +21,6 @@ from example_1 import (
 )
 #+END_SRC
 
-
 * Settings Checker
 
   This function checks that the settings the user chose are reasonable and then sets them on the rf-explorer.
@@ -127,6 +126,8 @@ def main(arguments, communicator):
                     sweep_data = None
                     print("Waiting for sweep_data update")
                     while ((sweep_data is None) or sweep_data.StartFrequencyMHZ != StartFreq):
+                        if rf_explorer.SweepData.IsFull():
+                            print("Sweep Data Collection is Full")
                         rf_explorer.ProcessReceivedString(True)
                         if (rf_explorer.SweepData.Count > 0):
                             sweep_data = rf_explorer.SweepData.GetData(rf_explorer.SweepData.Count-1)
