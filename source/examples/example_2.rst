@@ -2,8 +2,6 @@
 Example Two
 ===========
 
-    :Author: Brunhilde
-
 .. contents::
 
 This is an example taken from the RFExplorer for python repository.

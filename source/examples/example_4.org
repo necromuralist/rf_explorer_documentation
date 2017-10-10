@@ -19,7 +19,6 @@
     <<serial-port>>
     <<baud-rate>>
     <<run-time>>
-    <<csv-data>>
     <<return-arguments>>
 
 <<executable-block>>
@@ -151,16 +150,6 @@ parser.add_argument(
 parser.add_argument(
     "--run-time", type=int, default=10,
     help="Seconds to collect data (default=%(default)s)"
-)
-#+END_SRC
-
-** CSV Data
-   This tells the code to print a CSV format instead of the usual (human-readable) format.
-
-#+BEGIN_SRC ipython :session example4 :results none :noweb-ref csv-data
-parser.add_argument(
-    "--csv-data", action="store_true",
-    help="Output csv-formatted data",
 )
 #+END_SRC
 

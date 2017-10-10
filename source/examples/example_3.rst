@@ -2,8 +2,6 @@
 RF-Explorer Example Three
 =========================
 
-    :Author: Brunhilde
-
 .. contents::
 
 
@@ -98,7 +96,7 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 4.4 Print The Data
 ~~~~~~~~~~~~~~~~~~
 
-This checks the ``RFExplorer.RFECommunicator.SweepData.Count`` to see if it is new data and then, if it is, Dumps the data to the screen. This is the only part that differs from example 1.
+This checks the :attr:`SweepData.Count <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>` to see if it is new data and then, if it is, :meth:`Dumps <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump>` the data to the screen . This is the only part that differs from example 1.
 
 .. code:: ipython
 

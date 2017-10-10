@@ -64,10 +64,6 @@ def argument_parser():
         "--run-time", type=int, default=10,
         help="Seconds to collect data (default=%(default)s)"
     )
-    parser.add_argument(
-        "--csv-data", action="store_true",
-        help="Output csv-formatted data",
-    )
     return parser
 
 if __name__ == "__main__":
