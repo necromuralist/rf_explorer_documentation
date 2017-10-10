@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RF-Explorer Example Three &#8212; RF-Explorer Documentation 2017.10.02.a documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2017.10.02.a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="RF Explorer" href="../rfexplorer/index.html" />
+    <link rel="prev" title="Example Two" href="example_2.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          RF-Explorer Documentation</a>
+        <span class="navbar-text navbar-version pull-left"><b>2017.10.02</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rfexplorer/index.html">RF-Explorer API</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">RF-Explorer Example Three</a><ul>
+<li><a class="reference internal" href="#description">1 Description</a></li>
+<li><a class="reference internal" href="#tangle">2 Tangle</a></li>
+<li><a class="reference internal" href="#imports">3 Imports</a></li>
+<li><a class="reference internal" href="#the-main-processing-loop">4 The Main processing loop</a><ul>
+<li><a class="reference internal" href="#setup-the-communicator">4.1 Setup the Communicator</a></li>
+<li><a class="reference internal" href="#setup-the-loop">4.2 Setup the Loop</a></li>
+<li><a class="reference internal" href="#process-string">4.3 Process String</a></li>
+<li><a class="reference internal" href="#print-the-data">4.4 Print The Data</a></li>
+<li><a class="reference internal" href="#end-main">4.5 End Main</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-executable-block">5 The Executable Block</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="example_2.html" title="Previous Chapter: Example Two"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Example Two</span>
+    </a>
+  </li>
+  <li>
+    <a href="../rfexplorer/index.html" title="Next Chapter: RF Explorer"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">RF Explorer &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/example_3.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="rf-explorer-example-three">
+<h1><a class="toc-backref" href="#id1">RF-Explorer Example Three</a><a class="headerlink" href="#rf-explorer-example-three" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Brunhilde</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#rf-explorer-example-three" id="id1">RF-Explorer Example Three</a><ul>
+<li><a class="reference internal" href="#description" id="id2">1 Description</a></li>
+<li><a class="reference internal" href="#tangle" id="id3">2 Tangle</a></li>
+<li><a class="reference internal" href="#imports" id="id4">3 Imports</a></li>
+<li><a class="reference internal" href="#the-main-processing-loop" id="id5">4 The Main processing loop</a><ul>
+<li><a class="reference internal" href="#setup-the-communicator" id="id6">4.1 Setup the Communicator</a></li>
+<li><a class="reference internal" href="#setup-the-loop" id="id7">4.2 Setup the Loop</a></li>
+<li><a class="reference internal" href="#process-string" id="id8">4.3 Process String</a></li>
+<li><a class="reference internal" href="#print-the-data" id="id9">4.4 Print The Data</a></li>
+<li><a class="reference internal" href="#end-main" id="id10">4.5 End Main</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-executable-block" id="id11">5 The Executable Block</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="description">
+<h2><a class="toc-backref" href="#id2">1 Description</a><a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>This is a variation on example one that dumps the entire spectrum instead of just the peak.</p>
+</div>
+<div class="section" id="tangle">
+<h2><a class="toc-backref" href="#id3">2 Tangle</a><a class="headerlink" href="#tangle" title="Permalink to this headline">¶</a></h2>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;&lt;</span><span class="n">imports</span><span class="o">&gt;&gt;</span>
+
+<span class="o">&lt;&lt;</span><span class="n">main</span><span class="o">&gt;&gt;</span>
+        <span class="o">&lt;&lt;</span><span class="n">setup</span><span class="o">-</span><span class="n">communicator</span><span class="o">&gt;&gt;</span>
+        <span class="o">&lt;&lt;</span><span class="n">setup</span><span class="o">-</span><span class="n">loop</span><span class="o">&gt;&gt;</span>
+            <span class="o">&lt;&lt;</span><span class="n">process</span><span class="o">-</span><span class="n">string</span><span class="o">&gt;&gt;</span>
+            <span class="o">&lt;&lt;</span><span class="nb">print</span><span class="o">-</span><span class="n">data</span><span class="o">&gt;&gt;</span>
+    <span class="o">&lt;&lt;</span><span class="n">end</span><span class="o">-</span><span class="n">main</span><span class="o">&gt;&gt;</span>
+
+<span class="o">&lt;&lt;</span><span class="n">executable</span><span class="o">-</span><span class="n">block</span><span class="o">&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="imports">
+<h2><a class="toc-backref" href="#id4">3 Imports</a><a class="headerlink" href="#imports" title="Permalink to this headline">¶</a></h2>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="c1"># from this package</span>
+<span class="kn">from</span> <span class="nn">example_1</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">argument_parser</span><span class="p">,</span>
+    <span class="n">Communicator</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-main-processing-loop">
+<h2><a class="toc-backref" href="#id5">4 The Main processing loop</a><a class="headerlink" href="#the-main-processing-loop" title="Permalink to this headline">¶</a></h2>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">communicator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Runs the example</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     arguments (argparse.Namespace): object with the settings</span>
+<span class="sd">     communicator (Communicator): object with the RFECommunicator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rf_explorer</span> <span class="o">=</span> <span class="n">communicator</span><span class="o">.</span><span class="n">rf_explorer</span>
+    <span class="k">try</span><span class="p">:</span>
+</pre></div>
+</div>
+<div class="section" id="setup-the-communicator">
+<h3><a class="toc-backref" href="#id6">4.1 Setup the Communicator</a><a class="headerlink" href="#setup-the-communicator" title="Permalink to this headline">¶</a></h3>
+<p>This tells the communicator to do the basic setup.</p>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="n">communicator</span><span class="o">.</span><span class="n">set_up</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-the-loop">
+<h3><a class="toc-backref" href="#id7">4.2 Setup the Loop</a><a class="headerlink" href="#setup-the-loop" title="Permalink to this headline">¶</a></h3>
+<p>The loop will run continually until we run out of time. This sets up the time variables as well as a <code class="docutils literal"><span class="pre">last_index</span></code> variable that will make sure that we only print the value if it has been updated.</p>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Receiving data...&quot;</span><span class="p">)</span>
+<span class="c1">#Process until we complete scan time</span>
+<span class="n">last_index</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="n">total</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">arguments</span><span class="o">.</span><span class="n">run_time</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">total</span>
+
+<span class="k">if</span> <span class="n">arguments</span><span class="o">.</span><span class="n">csv_data</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;index,frequency (MHz), amplitude (dBm)&quot;</span><span class="p">)</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">):</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="process-string">
+<h3><a class="toc-backref" href="#id8">4.3 Process String</a><a class="headerlink" href="#process-string" title="Permalink to this headline">¶</a></h3>
+<p>As before, the thread needs to be prompted to inspect the string it has pulled from the serial port.</p>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="c1">#Process all received data from device</span>
+<span class="n">rf_explorer</span><span class="o">.</span><span class="n">ProcessReceivedString</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="print-the-data">
+<h3><a class="toc-backref" href="#id9">4.4 Print The Data</a><a class="headerlink" href="#print-the-data" title="Permalink to this headline">¶</a></h3>
+<p>This checks the <code class="docutils literal"><span class="pre">RFExplorer.RFECommunicator.SweepData.Count</span></code> to see if it is new data and then, if it is, Dumps the data to the screen. This is the only part that differs from example 1.</p>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="c1">#Print data if received new sweep only</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">rf_explorer</span><span class="o">.</span><span class="n">SweepData</span><span class="o">.</span><span class="n">Count</span> <span class="o">&gt;</span> <span class="n">last_index</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">rf_explorer</span><span class="o">.</span><span class="n">SweepData</span><span class="o">.</span><span class="n">Dump</span><span class="p">())</span>
+    <span class="n">last_index</span> <span class="o">=</span> <span class="n">rf_explorer</span><span class="o">.</span><span class="n">SweepData</span><span class="o">.</span><span class="n">Count</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="end-main">
+<h3><a class="toc-backref" href="#id10">4.5 End Main</a><a class="headerlink" href="#end-main" title="Permalink to this headline">¶</a></h3>
+<p>This is a leftover block to catch any exceptions that get raised.</p>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+<span class="k">return</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-executable-block">
+<h2><a class="toc-backref" href="#id11">5 The Executable Block</a><a class="headerlink" href="#the-executable-block" title="Permalink to this headline">¶</a></h2>
+<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argument_parser</span><span class="p">()</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">Communicator</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">serialport</span><span class="p">,</span> <span class="n">arguments</span><span class="o">.</span><span class="n">baud_rate</span><span class="p">)</span> <span class="k">as</span> <span class="n">communicator</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">communicator</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2017, Cloistered Monkey.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
