@@ -25,13 +25,12 @@ def check_settings(rf_explorer, arguments):
     """
     #print user settings
     print("User settings:\n"
-          + "Span: {} MHz".format(arguments.span_size)
-          +  " - "
           + "Start freq: {} MHz".format(arguments.scan_start)
           + " - "
           + "Stop freq: {} MHz".format(arguments.scan_stop))
 
     #Control maximum span size
+
     if(rf_explorer.MaxSpanMHZ <= arguments.span_size):
         print("Max Span size: {} MHz, Given {} MHz (aborting)".format(
             rf_explorer.MaxSpanMHZ,
@@ -97,11 +96,11 @@ def main(arguments, communicator):
                     LastFreqStart = StartFreq
     
                 #set new frequency range
-                StartFreq = min((StopFreq, arguments.scan_stop))
+                StartFreq = min((StopFreq + arguments.offset, arguments.scan_stop))
                 StopFreq = StartFreq + SpanSize
-    
+
                 #Maximum stop/start frequency control
-                if (StartFreq < StopFreq):
+                if (StartFreq < StopFreq and StopFreq<=arguments.scan_stop):
                     print("Updating device config")
                     rf_explorer.UpdateDeviceConfig(StartFreq, StopFreq)
                     #Wait for new configuration to arrive (as it will clean up old sweep data)
@@ -128,15 +127,22 @@ def add_arguments(parser):
      :py:class:`argparse.ArgumentParser`: parser with extra arguments
     """
     parser.add_argument(
-        "--span-size", default=84, type=float,
-        help="Maximum value for MaxSpanSize (default=%(default)s)"),
-    parser.add_argument(
-        "--scan-start", default=2350, type=float,
+        "--scan-start", default=2402, type=float,
         help="Frequency (MHz) to start the scan on (default=%(default)s)",
     ),
     parser.add_argument(
-        "--scan-stop", default=2434, type=float,
+        "--scan-stop", default=2477, type=float,
         help="Frequency (MHz) to stop the scan on (default=%(default)s)"
+    )
+    parser.add_argument(
+        "--span-size", default=20, type=float,
+        help="Span of each measurement (default=%(default)s)")
+    parser.add_argument(
+        "--reset-time", default=3, type=float,
+        help="Time to wait after sending the reset command (default=%(default)s)")
+    parser.add_argument(
+        "--offset", default=5, type=int,
+        help="Amount to add to the last frequency in the range when finding the low-end for the next range (default=%(default)s)"
     )
     return parser
 
@@ -144,5 +150,7 @@ if __name__ == "__main__":
     parser = argument_parser()
     parser = add_arguments(parser)
     arguments = parser.parse_args()
-    with Communicator(arguments.serialport, arguments.baud_rate) as communicator:
+    with Communicator(arguments.serialport,
+                      arguments.baud_rate,
+                      settle_time=arguments.reset_time) as communicator:
         main(arguments, communicator)

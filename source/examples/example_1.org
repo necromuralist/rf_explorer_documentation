@@ -88,7 +88,7 @@ def print_peak(rf_explorer, csv_data=False):
 
 ** Get The Data
 
-   This gets the current data-count from =RFExplorer.RFECommunicator.Count, decrements it to get the current index, then gets the data from =RFExplorer.RFECommunicator.SweepData.GetData=.
+   /This is part of the print_peak function./ This gets the current data-count from =RFExplorer.RFECommunicator.Count, decrements it to get the current index, then gets the data from =RFExplorer.RFECommunicator.SweepData.GetData=.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-data
 index = rf_explorer.SweepData.Count - 1
@@ -157,14 +157,14 @@ def rf_explorer(self):
 #+END_SRC
 
 ** Context Management
-   These are the methods that allow you to use this with a context manager.
+   These are the methods that allow you to use this with a context manager. e.g. -
 
 #+BEGIN_EXAMPLE
 with Communicator() as rfe:
     rfe.set_up()
 #+END_EXAMPLE
 
-When you leave the ``with`` statement it will close the RFECommunicator for you.
+When you leave the =with= statement it will close the RFECommunicator for you.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref context-management
 def __enter__(self):

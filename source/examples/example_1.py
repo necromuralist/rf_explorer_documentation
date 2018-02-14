@@ -97,18 +97,18 @@ class Communicator(object):
 
         print("Sending the Reset Command")
         self.rf_explorer.SendCommand("r")
-        
+        time.sleep(1)
         print("Waiting until the device resets")
         while(self.rf_explorer.IsResetEvent):
             pass
-        
+
         print("Reset, sleeping for {} seconds to let the device settle".format(
             self.settle_time))
         time.sleep(self.settle_time)
 
         print("requesting the RF Explorer configuration")
         self.rf_explorer.SendCommand_RequestConfigData()
-        
+
         print("Waiting for the model to not be None")
         while(self.rf_explorer.ActiveModel == RFExplorer.RFE_Common.eModel.MODEL_NONE):
             self.rf_explorer.ProcessReceivedString(True)
