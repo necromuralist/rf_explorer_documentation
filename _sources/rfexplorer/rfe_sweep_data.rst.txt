@@ -39,4 +39,4 @@ These methods will dump the sweep data with a (quasi) CSV-format.
    RFESweepData.Dump
    RFESweepData.SaveFileCSV
 
-.. note:: When the :class:`RFESweepData` is instantiated it sets a :classmethod:`datetime.datetime.now` value in an attribute named ``self.m_Time`` which might be useful when constructing your own CSV.
+.. note:: When the :class:`RFESweepData` is instantiated it sets a :meth:`datetime.datetime.now` value in an attribute named ``self.m_Time`` which might be useful when constructing your own CSV. Or use :attr:`RFESweepData.CaptureTime` which is the same thing.

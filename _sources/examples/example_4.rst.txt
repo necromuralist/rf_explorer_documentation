@@ -1,6 +1,8 @@
-=========================
-RF-Explorer Example Three
-=========================
+==================================================================
+RF-Explorer Example Four - Whole spectrum, without ``Dump`` method
+==================================================================
+
+    :Author: brunhilde
 
 .. contents::
 
@@ -9,7 +11,7 @@ RF-Explorer Example Three
 1 Description
 -------------
 
-This is a variation on example one that dumps the entire spectrum instead of just the peak.
+This is an extension of example three that tries to pull the values one at a time instead of using the ``Dump`` method before printing to the screen. This is probably the preferred way to do it, since it doesn't get all the extra artifacts.
 
 2 Tangle
 --------
@@ -19,13 +21,14 @@ This is a variation on example one that dumps the entire spectrum instead of jus
     <<imports>>
 
     <<main>>
-            <<setup-communicator>>
-            <<setup-loop>>
-                <<process-string>>
-                <<print-data>>
-        <<end-main>>
+    <<setup-communicator>>
+    <<setup-loop>>
+    <<process-string>>
+    <<print-data>>
+    <<end-main>>
 
     <<executable-block>>
+        <<cleanup>>
 
 3 Imports
 ---------
@@ -33,9 +36,14 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 .. code:: python
 
     # python standard library
+    import argparse
+    import time
     from datetime import datetime, timedelta
 
-    # from this package
+    # from pypi
+    import RFExplorer
+
+    # this project
     from example_1 import (
         argument_parser,
         Communicator,
@@ -54,7 +62,6 @@ This is a variation on example one that dumps the entire spectrum instead of jus
          communicator (Communicator): object with the RFECommunicator
         """
         rf_explorer = communicator.rf_explorer
-        try:
 
 4.1 Setup the Communicator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,24 +103,31 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 4.4 Print The Data
 ~~~~~~~~~~~~~~~~~~
 
-This checks the :attr:`SweepData.Count <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>` to see if it is new data and then, if it is, :meth:`Dumps <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump>` the data to the screen . This is the only part that differs from example 1.
+This checks the ``RFExplorer.RFECommunicator.SweepData.Count`` to see if it is new data and then, if it is, calls the ``print_peak`` function (defined above) to print the data to the screen and then updates the ``last_index`` that we printed.
 
 .. code:: python
 
     #Print data if received new sweep only
     if (rf_explorer.SweepData.Count > last_index):
-        print(rf_explorer.SweepData.Dump())
+        # print_peak(rf_explorer, arguments.csv_data)
+        for index in range(rf_explorer.SweepData.Count):
+            data = rf_explorer.SweepData.m_arrData[index]
+            try:
+                output = ','.join(("{:04.1f}".format(data.GetAmplitudeDBM(step, None, False))
+                                                     for step in range(data.TotalSteps)))
+                print("{},{}".format(data.m_Time, output))
+            except TypeError as error:
+                print(error)
+                print("Index: {}".format(index))
+                print("Data: {}".format(data))
+                raise
         last_index = rf_explorer.SweepData.Count          
 
 4.5 End Main
 ~~~~~~~~~~~~
 
-This is a leftover block to catch any exceptions that get raised.
-
 .. code:: python
 
-    except Exception as error:
-        print("Error: ".format(error))
     return
 
 5 The Executable Block

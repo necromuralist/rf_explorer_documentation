@@ -2,20 +2,13 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Example Two &#8212; RF-Explorer Documentation 2017.10.02.a documentation</title>
+    <title>Example Two - Frequency Sub-ranges &#8212; RF-Explorer Documentation 2017.10.02.a documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '2017.10.02.a',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <link rel="stylesheet" href="../_static/tuna.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -32,9 +25,8 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body>
-
+  </head><body>
+  
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
@@ -77,13 +69,14 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Example Two</a><ul>
-<li><a class="reference internal" href="#imports">1 Imports</a></li>
-<li><a class="reference internal" href="#settings-checker">2 Settings Checker</a></li>
-<li><a class="reference internal" href="#main-function">3 Main Function</a></li>
-<li><a class="reference internal" href="#adding-arguments">4 Adding Arguments</a></li>
-<li><a class="reference internal" href="#running-the-code">5 Running the Code</a></li>
-<li><a class="reference internal" href="#the-tangle">6 The Tangle</a></li>
+<li><a class="reference internal" href="#">Example Two - Frequency Sub-ranges</a><ul>
+<li><a class="reference internal" href="#channel-reference">1 Channel Reference</a></li>
+<li><a class="reference internal" href="#imports">2 Imports</a></li>
+<li><a class="reference internal" href="#settings-checker">3 Settings Checker</a></li>
+<li><a class="reference internal" href="#main-function">4 Main Function</a></li>
+<li><a class="reference internal" href="#adding-arguments">5 Adding Arguments</a></li>
+<li><a class="reference internal" href="#running-the-code">6 Running the Code</a></li>
+<li><a class="reference internal" href="#the-tangle">7 The Tangle</a></li>
 </ul>
 </li>
 </ul>
@@ -129,41 +122,81 @@
     </div>
   </div>
 
-<div class="container">
-  <div class="row">
-    <div class="col-md-12 content">
-      
-  <div class="section" id="example-two">
-<h1><a class="toc-backref" href="#id1">Example Two</a><a class="headerlink" href="#example-two" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Brunhilde</td>
-</tr>
-</tbody>
-</table>
-</div></blockquote>
+  <div id="main-content" class="container">
+    <div class="row">
+      <div class="col-md-12 content">
+        
+  <div class="section" id="example-two-frequency-sub-ranges">
+<h1><a class="toc-backref" href="#id1">Example Two - Frequency Sub-ranges</a><a class="headerlink" href="#example-two-frequency-sub-ranges" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#example-two" id="id1">Example Two</a><ul>
-<li><a class="reference internal" href="#imports" id="id2">1 Imports</a></li>
-<li><a class="reference internal" href="#settings-checker" id="id3">2 Settings Checker</a></li>
-<li><a class="reference internal" href="#main-function" id="id4">3 Main Function</a></li>
-<li><a class="reference internal" href="#adding-arguments" id="id5">4 Adding Arguments</a></li>
-<li><a class="reference internal" href="#running-the-code" id="id6">5 Running the Code</a></li>
-<li><a class="reference internal" href="#the-tangle" id="id7">6 The Tangle</a></li>
+<li><a class="reference internal" href="#example-two-frequency-sub-ranges" id="id1">Example Two - Frequency Sub-ranges</a><ul>
+<li><a class="reference internal" href="#channel-reference" id="id2">1 Channel Reference</a></li>
+<li><a class="reference internal" href="#imports" id="id3">2 Imports</a></li>
+<li><a class="reference internal" href="#settings-checker" id="id4">3 Settings Checker</a></li>
+<li><a class="reference internal" href="#main-function" id="id5">4 Main Function</a></li>
+<li><a class="reference internal" href="#adding-arguments" id="id6">5 Adding Arguments</a></li>
+<li><a class="reference internal" href="#running-the-code" id="id7">6 Running the Code</a></li>
+<li><a class="reference internal" href="#the-tangle" id="id8">7 The Tangle</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p>This is an example taken from the RFExplorer for python repository.</p>
-<p>It will display amplitude in dBm and frequency in MHz for the maximum amplitude in the frequency range.</p>
+<p>This is an example taken from the RFExplorer for python repository. It extends example one by looking at sub-ranges of the spectrum and reporting the maximum value for each sub-range.</p>
+<p>It will display amplitude in dBm and frequency in MHz for the maximum amplitude in the frequency range. It uses three main arguments</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">scan-start</span></code>: The frequency to start the scan</li>
+<li><code class="docutils literal notranslate"><span class="pre">scan-end</span></code>: The frequency to end the scan</li>
+<li><code class="docutils literal notranslate"><span class="pre">span-size</span></code>: The amount of frequencies to include in the current measurement.</li>
+</ul>
+<p>It starts at the <code class="docutils literal notranslate"><span class="pre">scan-start</span></code> frequency, then finds the highest value for the frequencies within the span (i.e. <code class="docutils literal notranslate"><span class="pre">scan-start</span></code>, to <code class="docutils literal notranslate"><span class="pre">scan-start</span> <span class="pre">+</span> <span class="pre">span-size</span></code>). Then moves up past the last frequency it used and finds the highest value for the next span, etc.</p>
+<p>The defaults set in the argument parser should have it find the peaks for channels 1, 6, and 11, omitting the 5 frequencies that they aren’t supposed to overlap.</p>
+<p>Changing the settings incurs kind of a lot of overhead so it wouldn’t be practical to actually do it like this, but this shows you how to select a sub-set of frequencies to query.</p>
+<div class="section" id="channel-reference">
+<h2><a class="toc-backref" href="#id2">1 Channel Reference</a><a class="headerlink" href="#channel-reference" title="Permalink to this headline">¶</a></h2>
+<p>These are the frequency ranges for the main channels (2.4 GHz).</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="26%" />
+<col width="26%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"></th>
+<th class="head">Channel 1</th>
+<th class="head">Channel 6</th>
+<th class="head">Channel 11</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Center</td>
+<td>2412</td>
+<td>2437</td>
+<td>2462</td>
+</tr>
+<tr class="row-odd"><td>Span</td>
+<td>20</td>
+<td>20</td>
+<td>20</td>
+</tr>
+<tr class="row-even"><td>Start</td>
+<td>2402</td>
+<td>2427</td>
+<td>2452</td>
+</tr>
+<tr class="row-odd"><td>End</td>
+<td>2422</td>
+<td>2447</td>
+<td>2472</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="imports">
-<h2><a class="toc-backref" href="#id2">1 Imports</a><a class="headerlink" href="#imports" title="Permalink to this headline">¶</a></h2>
-<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
+<h2><a class="toc-backref" href="#id3">2 Imports</a><a class="headerlink" href="#imports" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="c1"># from pypi</span>
@@ -179,9 +212,9 @@
 </div>
 </div>
 <div class="section" id="settings-checker">
-<h2><a class="toc-backref" href="#id3">2 Settings Checker</a><a class="headerlink" href="#settings-checker" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">3 Settings Checker</a><a class="headerlink" href="#settings-checker" title="Permalink to this headline">¶</a></h2>
 <p>This function checks that the settings the user chose are reasonable and then sets them on the rf-explorer.</p>
-<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_settings</span><span class="p">(</span><span class="n">rf_explorer</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_settings</span><span class="p">(</span><span class="n">rf_explorer</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This functions check user settings</span>
 
 <span class="sd">    If a value is out of bounds it sets the value to the limit allowed</span>
@@ -195,13 +228,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#print user settings</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;User settings:</span><span class="se">\n</span><span class="s2">&quot;</span>
-          <span class="o">+</span> <span class="s2">&quot;Span: </span><span class="si">{}</span><span class="s2"> MHz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">span_size</span><span class="p">)</span>
-          <span class="o">+</span>  <span class="s2">&quot; - &quot;</span>
           <span class="o">+</span> <span class="s2">&quot;Start freq: </span><span class="si">{}</span><span class="s2"> MHz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">scan_start</span><span class="p">)</span>
           <span class="o">+</span> <span class="s2">&quot; - &quot;</span>
           <span class="o">+</span> <span class="s2">&quot;Stop freq: </span><span class="si">{}</span><span class="s2"> MHz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">scan_stop</span><span class="p">))</span>
 
     <span class="c1">#Control maximum span size</span>
+
     <span class="k">if</span><span class="p">(</span><span class="n">rf_explorer</span><span class="o">.</span><span class="n">MaxSpanMHZ</span> <span class="o">&lt;=</span> <span class="n">arguments</span><span class="o">.</span><span class="n">span_size</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max Span size: </span><span class="si">{}</span><span class="s2"> MHz, Given </span><span class="si">{}</span><span class="s2"> MHz (aborting)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">rf_explorer</span><span class="o">.</span><span class="n">MaxSpanMHZ</span><span class="p">,</span>
@@ -237,8 +269,8 @@
 </div>
 </div>
 <div class="section" id="main-function">
-<h2><a class="toc-backref" href="#id4">3 Main Function</a><a class="headerlink" href="#main-function" title="Permalink to this headline">¶</a></h2>
-<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">communicator</span><span class="p">):</span>
+<h2><a class="toc-backref" href="#id5">4 Main Function</a><a class="headerlink" href="#main-function" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">communicator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Runs the example</span>
 
 <span class="sd">    Args:</span>
@@ -271,11 +303,11 @@
                     <span class="n">LastFreqStart</span> <span class="o">=</span> <span class="n">StartFreq</span>
 
                 <span class="c1">#set new frequency range</span>
-                <span class="n">StartFreq</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">StopFreq</span><span class="p">,</span> <span class="n">arguments</span><span class="o">.</span><span class="n">scan_stop</span><span class="p">))</span>
+                <span class="n">StartFreq</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">StopFreq</span> <span class="o">+</span> <span class="n">arguments</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="n">arguments</span><span class="o">.</span><span class="n">scan_stop</span><span class="p">))</span>
                 <span class="n">StopFreq</span> <span class="o">=</span> <span class="n">StartFreq</span> <span class="o">+</span> <span class="n">SpanSize</span>
 
                 <span class="c1">#Maximum stop/start frequency control</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">StartFreq</span> <span class="o">&lt;</span> <span class="n">StopFreq</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">StartFreq</span> <span class="o">&lt;</span> <span class="n">StopFreq</span> <span class="ow">and</span> <span class="n">StopFreq</span><span class="o">&lt;=</span><span class="n">arguments</span><span class="o">.</span><span class="n">scan_stop</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Updating device config&quot;</span><span class="p">)</span>
                     <span class="n">rf_explorer</span><span class="o">.</span><span class="n">UpdateDeviceConfig</span><span class="p">(</span><span class="n">StartFreq</span><span class="p">,</span> <span class="n">StopFreq</span><span class="p">)</span>
                     <span class="c1">#Wait for new configuration to arrive (as it will clean up old sweep data)</span>
@@ -295,9 +327,9 @@
 </div>
 </div>
 <div class="section" id="adding-arguments">
-<h2><a class="toc-backref" href="#id5">4 Adding Arguments</a><a class="headerlink" href="#adding-arguments" title="Permalink to this headline">¶</a></h2>
-<p>This adds the arguments unique to this example.</p>
-<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<h2><a class="toc-backref" href="#id6">5 Adding Arguments</a><a class="headerlink" href="#adding-arguments" title="Permalink to this headline">¶</a></h2>
+<p>This adds the arguments unique to this example. The span-size used is the maximum that the rf-explorer will allow.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;adds the extra command-line arguments</span>
 
 <span class="sd">    Args:</span>
@@ -307,34 +339,43 @@
 <span class="sd">     :py:class:`argparse.ArgumentParser`: parser with extra arguments</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--span-size&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">84</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum value for MaxSpanSize (default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">),</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--scan-start&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2350</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="s2">&quot;--scan-start&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2402</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Frequency (MHz) to start the scan on (default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--scan-stop&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2434</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="s2">&quot;--scan-stop&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2477</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Frequency (MHz) to stop the scan on (default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--span-size&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Span of each measurement (default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--reset-time&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Time to wait after sending the reset command (default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--offset&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Amount to add to the last frequency in the range when finding the low-end for the next range (default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="running-the-code">
-<h2><a class="toc-backref" href="#id6">5 Running the Code</a><a class="headerlink" href="#running-the-code" title="Permalink to this headline">¶</a></h2>
-<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<h2><a class="toc-backref" href="#id7">6 Running the Code</a><a class="headerlink" href="#running-the-code" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argument_parser</span><span class="p">()</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">add_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">Communicator</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">serialport</span><span class="p">,</span> <span class="n">arguments</span><span class="o">.</span><span class="n">baud_rate</span><span class="p">)</span> <span class="k">as</span> <span class="n">communicator</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">Communicator</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">serialport</span><span class="p">,</span>
+                      <span class="n">arguments</span><span class="o">.</span><span class="n">baud_rate</span><span class="p">,</span>
+                      <span class="n">settle_time</span><span class="o">=</span><span class="n">arguments</span><span class="o">.</span><span class="n">reset_time</span><span class="p">)</span> <span class="k">as</span> <span class="n">communicator</span><span class="p">:</span>
         <span class="n">main</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">communicator</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="the-tangle">
-<h2><a class="toc-backref" href="#id7">6 The Tangle</a><a class="headerlink" href="#the-tangle" title="Permalink to this headline">¶</a></h2>
-<div class="code ipython highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;&lt;</span><span class="n">imports</span><span class="o">&gt;&gt;</span>
+<h2><a class="toc-backref" href="#id8">7 The Tangle</a><a class="headerlink" href="#the-tangle" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;&lt;</span><span class="n">imports</span><span class="o">&gt;&gt;</span>
 
 <span class="o">&lt;&lt;</span><span class="n">check</span><span class="o">-</span><span class="n">settings</span><span class="o">&gt;&gt;</span>
 
@@ -349,21 +390,15 @@
 </div>
 
 
+      </div>
+        
     </div>
-      
   </div>
-</div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-    </p>
-    <p>
-        &copy; Copyright 2017, Cloistered Monkey.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.<br/>
-    </p>
-  </div>
-</footer>
+  <footer class="footer navbar-fixed-bottom">
+    <div class="container" style="text-align:center">
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="padding: 10px" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </div>
+  </footer>
+
   </body>
 </html>
