@@ -8,5 +8,10 @@ div#navbar {
 
 
 div#main-content {
-    margin-bottom: 40px;
+    margin-bottom: 80px;
+}
+
+
+.navbar-fixed-bottom {
+    background-color: white;
 }
