@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 # from pypi
 import RFExplorer
 
-CSV_LINE = "{0},{1},{2}"
-HUMAN_LINE = "Sweep[{0}]: Peak: {1:.3f} MHz\t{2} dBm"
+CSV_LINE = "{0},{1},{2},{3}"
+HUMAN_LINE = "{0}, Sweep[{1}]: Peak: {2:.3f} MHz\t{3} dBm"
 
 def print_peak(rf_explorer, csv_data=False):
     """This function prints the amplitude and frequency peak of the latest received sweep
@@ -24,8 +24,10 @@ def print_peak(rf_explorer, csv_data=False):
     
     line = CSV_LINE if csv_data else HUMAN_LINE
     
-    print(line.format(index, peak_frequency, peak_amplitude)) 
+    print(line.format(datetime.now().strftime("%c"), index, peak_frequency,
+                      peak_amplitude))
     return
+
 
 
 class CommunicatorException(Exception):
@@ -97,18 +99,18 @@ class Communicator(object):
 
         print("Sending the Reset Command")
         self.rf_explorer.SendCommand("r")
-        time.sleep(1)
+        
         print("Waiting until the device resets")
         while(self.rf_explorer.IsResetEvent):
             pass
-
+        
         print("Reset, sleeping for {} seconds to let the device settle".format(
             self.settle_time))
         time.sleep(self.settle_time)
 
         print("requesting the RF Explorer configuration")
         self.rf_explorer.SendCommand_RequestConfigData()
-
+        
         print("Waiting for the model to not be None")
         while(self.rf_explorer.ActiveModel == RFExplorer.RFE_Common.eModel.MODEL_NONE):
             self.rf_explorer.ProcessReceivedString(True)
@@ -148,7 +150,7 @@ def main(arguments, communicator):
                 print_peak(rf_explorer, arguments.csv_data)
                 last_index = rf_explorer.SweepData.Count          
     except Exception as error:
-        print("Error: ".format(error))
+        print("Error: {}".format(error))
     return
 
 def argument_parser():

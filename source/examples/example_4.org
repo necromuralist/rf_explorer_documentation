@@ -1,7 +1,7 @@
-#+TITLE: RF-Explorer Example Four
+#+TITLE: RF-Explorer Example Four - Whole spectrum, without =Dump= Method
 
 * Description
-  This is an extension of example three that tries to pull the values one at a time instead of using the =Dump= method.
+  This is an extension of example three that tries to pull the values one at a time instead of using the =Dump= method before printing to the screen. This is probably the preferred way to do it, since it doesn't get all the extra artifacts.
 
 * Tangle
 
@@ -9,17 +9,11 @@
 <<imports>>
 
 <<main>>
-    <<setup-communicator>>
-    <<setup-loop>>
-        <<process-string>>
-        <<print-data>>
-    <<end-main>>
-
-<<argument-parser>>
-    <<serial-port>>
-    <<baud-rate>>
-    <<run-time>>
-    <<return-arguments>>
+<<setup-communicator>>
+<<setup-loop>>
+<<process-string>>
+<<print-data>>
+<<end-main>>
 
 <<executable-block>>
     <<cleanup>>
@@ -36,7 +30,10 @@ from datetime import datetime, timedelta
 import RFExplorer
 
 # this project
-from example_1 import Communicator
+from example_1 import (
+    argument_parser,
+    Communicator,
+    )
 #+END_SRC
 
 * The Main processing loop
@@ -56,107 +53,60 @@ def main(arguments, communicator):
    This tells the communicator to do the basic setup.
 
 #+BEGIN_SRC ipython :session example4 :results none :noweb-ref setup-communicator
-communicator.set_up()
+    communicator.set_up()
 #+END_SRC
 
 ** Setup the Loop
    The loop will run continually until we run out of time. This sets up the time variables as well as a =last_index= variable that will make sure that we only print the value if it has been updated.
 
 #+BEGIN_SRC ipython :session example4 :results none :noweb-ref setup-loop
-print("Receiving data...")
-#Process until we complete scan time
-last_index = 0
-start = datetime.now()
-total = timedelta(seconds=arguments.run_time)
-end = start + total
-
-if arguments.csv_data:
-    print("index,frequency (MHz), amplitude (dBm)")
-while (datetime.now() < end):
+    print("Receiving data...")
+    #Process until we complete scan time
+    last_index = 0
+    start = datetime.now()
+    total = timedelta(seconds=arguments.run_time)
+    end = start + total
+    
+    if arguments.csv_data:
+        print("index,frequency (MHz), amplitude (dBm)")
+    while (datetime.now() < end):
 #+END_SRC
 
 ** Process String
    As before, the thread needs to be prompted to inspect the string it has pulled from the serial port.
 
 #+BEGIN_SRC ipython :session example4 :results none :noweb-ref process-string
-#Process all received data from device 
-rf_explorer.ProcessReceivedString(True)
+        #Process all received data from device 
+        rf_explorer.ProcessReceivedString(True)
 #+END_SRC
 
 ** Print The Data
-   This checks the =RFExplorer.RFECommunicator.SweepData.Count= to see if it is new data and then, if it is, calls the =print_peak= function (defined above) to print the data to the screen and then updates the =last_index= that we printed.
+   This checks the =RFExplorer.RFECommunicator.SweepData.Count= to see if it is new data and then, if it is, prints the data to the screen and then updates the =last_index= that we printed. This accesses the data directly using the :py:meth:`RFExplorer.SweepData.GetData` method. Behind the scenes this just gets the value from the =SweepData.m_arrData= list so if there's a performance problem, that might work better. The =GetData= method returns a :py:class:`RFESweepData` object, that represents one measurement (a collection of measurements, one for each frequency).
+
+Also see :py:meth:`RFESweepData.SaveFileCSV`. For the time-stamp I'm using :py:attr:`RFESweepData.CaptureTime`, which is a :py:class:`datetime.datetime` object. It appears to be an alias for =RFESweepData.m_Time=.
 
 #+BEGIN_SRC ipython :session example4 :results none :noweb-ref print-data
-#Print data if received new sweep only
-if (rf_explorer.SweepData.Count > last_index):
-    # print_peak(rf_explorer, arguments.csv_data)
-    for index in range(rf_explorer.SweepData.Count):
-        data = rf_explorer.SweepData.m_arrData[index]
-        try:
-            output = ','.join(("{:04.1f}".format(data.GetAmplitudeDBM(step, None, False))
-                                                 for step in range(data.TotalSteps)))
-            print("{},{}".format(data.m_Time, output))
-        except TypeError as error:
-            print(error)
-            print("Index: {}".format(index))
-            print("Data: {}".format(data))
-            raise
-    last_index = rf_explorer.SweepData.Count          
+        #Print data if received new sweep only
+        if (rf_explorer.SweepData.Count > last_index):
+            for index in range(rf_explorer.SweepData.Count):
+                data = rf_explorer.SweepData.GetData(index)
+                try:
+                    output = ','.join(("{:04.1f}".format(data.GetAmplitudeDBM(step, None, False))
+                                                         for step in range(data.TotalSteps)))
+                    print("{},{}".format(data.CaptureTime, output))
+                except TypeError as error:
+                    print(error)
+                    print("Index: {}".format(index))
+                    print("Data: {}".format(data))
+                    raise
+            last_index = rf_explorer.SweepData.Count          
 #+END_SRC
 
 ** End Main
-   This is a leftover block to catch any exceptions that get raised. Disabled for now because it catches too  much.
-
 #+BEGIN_SRC ipython :session example4 :results none :noweb-ref end-main    
-return
+    return
 #+END_SRC
 
-* The Argument Parser
-
-  This creates the parser for the command-line arguments. It doesn't parse the arguments because example-two uses it after adding more arguments.
-
-#+BEGIN_SRC ipython :session example4 :results none :noweb-ref argument-parser
-def argument_parser():
-    """Builds the argument parser
-    
-    Returns:
-     ArgumentParser: object to parse the arguments
-    """
-    parser = argparse.ArgumentParser("RF Explorer Example One")
-#+END_SRC
-
-** Serial Port
-   If the `RFExplorer.RFECommunicator.ConnectPort` isn't given a serial port it will try all the likely ports until it does or doesn't connect. If this doesn't work then pass in a specific port (e.g. =/dev/ttyUSB0=).
-   
-#+BEGIN_SRC ipython :session example4 :results none :noweb-ref serial-port
-parser.add_argument(
-    "--serialport", type=str,
-    help="Path to the serial-port file (e.g. '/dev/ttyUSB0') - Default=%(default)s")
-#+END_SRC
-
-** Baud Rate
-   The baud-rate should be 500,000. Don't change it unless you know something changed.
-
-#+BEGIN_SRC ipython :session example4 :results none :noweb-ref baud-rate
-parser.add_argument(
-    "--baud-rate", type=int, default=500000,
-    help="Baud-rate for the serial port (default=%(default)s)")
-#+END_SRC
-
-** Run-Time
-   This is the number of seconds to collect data before quitting.
-
-#+BEGIN_SRC ipython :session example4 :results none :noweb-ref run-time
-parser.add_argument(
-    "--run-time", type=int, default=10,
-    help="Seconds to collect data (default=%(default)s)"
-)
-#+END_SRC
-
-** Return The parser
-#+BEGIN_SRC ipython :session example4 :results none :noweb-ref return-arguments
-return parser
-#+END_SRC
 
 * The Executable Block
 

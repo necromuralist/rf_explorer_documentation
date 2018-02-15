@@ -34,7 +34,7 @@ def main(arguments, communicator):
                 print(rf_explorer.SweepData.Dump())
                 last_index = rf_explorer.SweepData.Count          
     except Exception as error:
-        print("Error: ".format(error))
+        print("Error: {}".format(error))
     return
 
 if __name__ == "__main__":

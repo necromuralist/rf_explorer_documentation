@@ -14,7 +14,7 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 2 Tangle
 --------
 
-.. code:: ipython
+.. code:: python
 
     <<imports>>
 
@@ -30,7 +30,7 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 3 Imports
 ---------
 
-.. code:: ipython
+.. code:: python
 
     # python standard library
     from datetime import datetime, timedelta
@@ -44,7 +44,7 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 4 The Main processing loop
 --------------------------
 
-.. code:: ipython
+.. code:: python
 
     def main(arguments, communicator):
         """Runs the example
@@ -61,7 +61,7 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 
 This tells the communicator to do the basic setup.
 
-.. code:: ipython
+.. code:: python
 
     communicator.set_up()
 
@@ -70,7 +70,7 @@ This tells the communicator to do the basic setup.
 
 The loop will run continually until we run out of time. This sets up the time variables as well as a ``last_index`` variable that will make sure that we only print the value if it has been updated.
 
-.. code:: ipython
+.. code:: python
 
     print("Receiving data...")
     #Process until we complete scan time
@@ -88,7 +88,7 @@ The loop will run continually until we run out of time. This sets up the time va
 
 As before, the thread needs to be prompted to inspect the string it has pulled from the serial port.
 
-.. code:: ipython
+.. code:: python
 
     #Process all received data from device 
     rf_explorer.ProcessReceivedString(True)
@@ -98,7 +98,7 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 
 This checks the :attr:`SweepData.Count <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>` to see if it is new data and then, if it is, :meth:`Dumps <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump>` the data to the screen . This is the only part that differs from example 1.
 
-.. code:: ipython
+.. code:: python
 
     #Print data if received new sweep only
     if (rf_explorer.SweepData.Count > last_index):
@@ -110,7 +110,7 @@ This checks the :attr:`SweepData.Count <RFExplorer.RFESweepDataCollection.RFESwe
 
 This is a leftover block to catch any exceptions that get raised.
 
-.. code:: ipython
+.. code:: python
 
     except Exception as error:
         print("Error: ".format(error))
@@ -119,7 +119,7 @@ This is a leftover block to catch any exceptions that get raised.
 5 The Executable Block
 ----------------------
 
-.. code:: ipython
+.. code:: python
 
     if __name__ == "__main__":
         parser = argument_parser()

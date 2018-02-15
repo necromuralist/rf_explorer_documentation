@@ -1,9 +1,9 @@
-#+TITLE: RF-Explorer Example One
+#+TITLE: RF-Explorer Example One - Max Value
 
 * Description
   This is the first example that comes with the =RFExplorer= repository.
   It will display the amplitude (in dBm) and the frequency (in MHz) of the maximum value in the sweep data.
-  The amount of stored sweep data is controlled by the length of time that it scans.
+  The amount of stored sweep data is controlled by the length of time that it scans. By default, it samples ten times a second, so if you are comparing it to something that reports less frequently, you will need to aggregate it somehow.
 
 * Tangle
 
@@ -13,8 +13,9 @@
 <<line-formats>>
 
 <<print-peak>>
-    <<get-data>>
-    <<get-peak-data>>
+<<get-data>>
+<<get-peak-data>>
+
 <<global-variables>>
 
 <<communicator-exception>>
@@ -72,8 +73,8 @@ import RFExplorer
    These are the output formats for each line.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref line-formats
-CSV_LINE = "{0},{1},{2}"
-HUMAN_LINE = "Sweep[{0}]: Peak: {1:.3f} MHz\t{2} dBm"
+CSV_LINE = "{0},{1},{2},{3}"
+HUMAN_LINE = "{0}, Sweep[{1}]: Peak: {2:.3f} MHz\t{3} dBm"
 #+END_SRC
 
 #+BEGIN_SRC ipython :session example1 :results output :noweb-ref print-peak
@@ -91,8 +92,8 @@ def print_peak(rf_explorer, csv_data=False):
    /This is part of the print_peak function./ This gets the current data-count from =RFExplorer.RFECommunicator.Count, decrements it to get the current index, then gets the data from =RFExplorer.RFECommunicator.SweepData.GetData=.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-data
-index = rf_explorer.SweepData.Count - 1
-sweep_data = rf_explorer.SweepData.GetData(index)
+    index = rf_explorer.SweepData.Count - 1
+    sweep_data = rf_explorer.SweepData.GetData(index)
 #+END_SRC
 
 The sweep_data is an instance of =RFExplorer.RFESweepData.RFESweepData=.
@@ -101,14 +102,15 @@ The sweep_data is an instance of =RFExplorer.RFESweepData.RFESweepData=.
    In this case we aren't printing all the data, just the peak.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-peak-data
-peak_step = sweep_data.GetPeakStep()      #Get index of the peak
-peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)    #Get amplitude of the peak
-peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)   #Get frequency of the peak
-
-line = CSV_LINE if csv_data else HUMAN_LINE
-
-print(line.format(index, peak_frequency, peak_amplitude)) 
-return
+    peak_step = sweep_data.GetPeakStep()      #Get index of the peak
+    peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)    #Get amplitude of the peak
+    peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)   #Get frequency of the peak
+    
+    line = CSV_LINE if csv_data else HUMAN_LINE
+    
+    print(line.format(datetime.now().strftime("%c"), index, peak_frequency,
+                      peak_amplitude))
+    return
 #+END_SRC
 
 * Communicator Exception
@@ -324,7 +326,7 @@ if (rf_explorer.SweepData.Count > last_index):
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref end-main    
 except Exception as error:
-    print("Error: ".format(error))
+    print("Error: {}".format(error))
 return
 #+END_SRC
 
@@ -394,4 +396,17 @@ if __name__ == "__main__":
 
     with Communicator(arguments.serialport, arguments.baud_rate) as communicator:        
         main(arguments, communicator)
+#+END_SRC
+* Sample output
+** Default
+  This is the default output.
+
+#+BEGIN_SRC ipython :session example1 :results output
+parser = argument_parser()
+arguments = parser.parse_args(["--run-time", "5"])
+#+END_SRC
+
+** CSV
+#+BEGIN_SRC ipython :session example1 :results output
+arguments = parser.parse_args(["--run-time", "3", "--csv-data"])
 #+END_SRC

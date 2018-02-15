@@ -1,17 +1,48 @@
-===========
-Example Two
-===========
+==================================
+Example Two - Frequency Sub-ranges
+==================================
 
 .. contents::
 
-This is an example taken from the RFExplorer for python repository.
+This is an example taken from the RFExplorer for python repository. It extends example one by looking at sub-ranges of the spectrum and reporting the maximum value for each sub-range.
 
-It will display amplitude in dBm and frequency in MHz for the maximum amplitude in the frequency range.
+It will display amplitude in dBm and frequency in MHz for the maximum amplitude in the frequency range. It uses three main arguments
 
-1 Imports
+- ``scan-start``: The frequency to start the scan
+
+- ``scan-end``: The frequency to end the scan
+
+- ``span-size``: The amount of frequencies to include in the current measurement.
+
+It starts at the ``scan-start`` frequency, then finds the highest value for the frequencies within the span (i.e. ``scan-start``, to ``scan-start + span-size``). Then moves up past the last frequency it used and finds the highest value for the next span, etc.
+
+The defaults set in the argument parser should have it find the peaks for channels 1, 6, and 11, omitting the 5 frequencies that they aren't supposed to overlap. 
+
+Changing the settings incurs kind of a lot of overhead so it wouldn't be practical to actually do it like this, but this shows you how to select a sub-set of frequencies to query.
+
+1 Channel Reference
+-------------------
+
+These are the frequency ranges for the main channels (2.4 GHz).
+
+.. table::
+
+    +--------+-----------+-----------+------------+
+    | \      | Channel 1 | Channel 6 | Channel 11 |
+    +========+===========+===========+============+
+    | Center |      2412 |      2437 |       2462 |
+    +--------+-----------+-----------+------------+
+    | Span   |        20 |        20 |         20 |
+    +--------+-----------+-----------+------------+
+    | Start  |      2402 |      2427 |       2452 |
+    +--------+-----------+-----------+------------+
+    | End    |      2422 |      2447 |       2472 |
+    +--------+-----------+-----------+------------+
+
+2 Imports
 ---------
 
-.. code:: ipython
+.. code:: python
 
     # python standard library
     import time
@@ -26,12 +57,12 @@ It will display amplitude in dBm and frequency in MHz for the maximum amplitude 
         print_peak,
     )
 
-2 Settings Checker
+3 Settings Checker
 ------------------
 
 This function checks that the settings the user chose are reasonable and then sets them on the rf-explorer.
 
-.. code:: ipython
+.. code:: python
 
     def check_settings(rf_explorer, arguments):
         """This functions check user settings
@@ -47,13 +78,12 @@ This function checks that the settings the user chose are reasonable and then se
         """
         #print user settings
         print("User settings:\n"
-              + "Span: {} MHz".format(arguments.span_size)
-              +  " - "
               + "Start freq: {} MHz".format(arguments.scan_start)
               + " - "
               + "Stop freq: {} MHz".format(arguments.scan_stop))
 
         #Control maximum span size
+
         if(rf_explorer.MaxSpanMHZ <= arguments.span_size):
             print("Max Span size: {} MHz, Given {} MHz (aborting)".format(
                 rf_explorer.MaxSpanMHZ,
@@ -86,10 +116,10 @@ This function checks that the settings the user chose are reasonable and then se
     
         return rf_explorer.SpanMHZ, rf_explorer.StartFrequencyMHZ, stop_frequency
 
-3 Main Function
+4 Main Function
 ---------------
 
-.. code:: ipython
+.. code:: python
 
     def main(arguments, communicator):
         """Runs the example
@@ -124,11 +154,11 @@ This function checks that the settings the user chose are reasonable and then se
                         LastFreqStart = StartFreq
     
                     #set new frequency range
-                    StartFreq = min((StopFreq, arguments.scan_stop))
+                    StartFreq = min((StopFreq + arguments.offset, arguments.scan_stop))
                     StopFreq = StartFreq + SpanSize
-    
+
                     #Maximum stop/start frequency control
-                    if (StartFreq < StopFreq):
+                    if (StartFreq < StopFreq and StopFreq<=arguments.scan_stop):
                         print("Updating device config")
                         rf_explorer.UpdateDeviceConfig(StartFreq, StopFreq)
                         #Wait for new configuration to arrive (as it will clean up old sweep data)
@@ -145,12 +175,12 @@ This function checks that the settings the user chose are reasonable and then se
             print("Error: {}".format(error))
         return
 
-4 Adding Arguments
+5 Adding Arguments
 ------------------
 
-This adds the arguments unique to this example.
+This adds the arguments unique to this example. The span-size used is the maximum that the rf-explorer will allow.
 
-.. code:: ipython
+.. code:: python
 
     def add_arguments(parser):
         """adds the extra command-line arguments
@@ -162,34 +192,43 @@ This adds the arguments unique to this example.
          :py:class:`argparse.ArgumentParser`: parser with extra arguments
         """
         parser.add_argument(
-            "--span-size", default=84, type=float,
-            help="Maximum value for MaxSpanSize (default=%(default)s)"),
-        parser.add_argument(
-            "--scan-start", default=2350, type=float,
+            "--scan-start", default=2402, type=float,
             help="Frequency (MHz) to start the scan on (default=%(default)s)",
         ),
         parser.add_argument(
-            "--scan-stop", default=2434, type=float,
+            "--scan-stop", default=2477, type=float,
             help="Frequency (MHz) to stop the scan on (default=%(default)s)"
+        )
+        parser.add_argument(
+            "--span-size", default=20, type=float,
+            help="Span of each measurement (default=%(default)s)")
+        parser.add_argument(
+            "--reset-time", default=3, type=float,
+            help="Time to wait after sending the reset command (default=%(default)s)")
+        parser.add_argument(
+            "--offset", default=5, type=int,
+            help="Amount to add to the last frequency in the range when finding the low-end for the next range (default=%(default)s)"
         )
         return parser
 
-5 Running the Code
+6 Running the Code
 ------------------
 
-.. code:: ipython
+.. code:: python
 
     if __name__ == "__main__":
         parser = argument_parser()
         parser = add_arguments(parser)
         arguments = parser.parse_args()
-        with Communicator(arguments.serialport, arguments.baud_rate) as communicator:
+        with Communicator(arguments.serialport,
+                          arguments.baud_rate,
+                          settle_time=arguments.reset_time) as communicator:
             main(arguments, communicator)
 
-6 The Tangle
+7 The Tangle
 ------------
 
-.. code:: ipython
+.. code:: python
 
     <<imports>>
 

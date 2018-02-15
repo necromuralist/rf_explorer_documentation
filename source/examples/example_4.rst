@@ -1,6 +1,8 @@
-========================
-RF-Explorer Example Four
-========================
+==================================================================
+RF-Explorer Example Four - Whole spectrum, without ``Dump`` method
+==================================================================
+
+    :Author: brunhilde
 
 .. contents::
 
@@ -9,28 +11,21 @@ RF-Explorer Example Four
 1 Description
 -------------
 
-This is an extension of example three that tries to pull the values one at a time instead of using the :meth:`Dump <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump>` method.
+This is an extension of example three that tries to pull the values one at a time instead of using the ``Dump`` method before printing to the screen. This is probably the preferred way to do it, since it doesn't get all the extra artifacts.
 
 2 Tangle
 --------
 
-.. code:: ipython
+.. code:: python
 
     <<imports>>
 
     <<main>>
-        <<setup-communicator>>
-        <<setup-loop>>
-            <<process-string>>
-            <<print-data>>
-        <<end-main>>
-
-    <<argument-parser>>
-        <<serial-port>>
-        <<baud-rate>>
-        <<run-time>>
-        <<csv-data>>
-        <<return-arguments>>
+    <<setup-communicator>>
+    <<setup-loop>>
+    <<process-string>>
+    <<print-data>>
+    <<end-main>>
 
     <<executable-block>>
         <<cleanup>>
@@ -38,7 +33,7 @@ This is an extension of example three that tries to pull the values one at a tim
 3 Imports
 ---------
 
-.. code:: ipython
+.. code:: python
 
     # python standard library
     import argparse
@@ -49,12 +44,15 @@ This is an extension of example three that tries to pull the values one at a tim
     import RFExplorer
 
     # this project
-    from example_1 import Communicator
+    from example_1 import (
+        argument_parser,
+        Communicator,
+        )
 
 4 The Main processing loop
 --------------------------
 
-.. code:: ipython
+.. code:: python
 
     def main(arguments, communicator):
         """Runs the example
@@ -70,7 +68,7 @@ This is an extension of example three that tries to pull the values one at a tim
 
 This tells the communicator to do the basic setup.
 
-.. code:: ipython
+.. code:: python
 
     communicator.set_up()
 
@@ -79,7 +77,7 @@ This tells the communicator to do the basic setup.
 
 The loop will run continually until we run out of time. This sets up the time variables as well as a ``last_index`` variable that will make sure that we only print the value if it has been updated.
 
-.. code:: ipython
+.. code:: python
 
     print("Receiving data...")
     #Process until we complete scan time
@@ -95,9 +93,9 @@ The loop will run continually until we run out of time. This sets up the time va
 4.3 Process String
 ~~~~~~~~~~~~~~~~~~
 
-As before, the thread needs to be prompted to inspect the string it has pulled from the serial port (using :meth:`RFExplorer.RFECommunicator.ProcessReceivedString`).
+As before, the thread needs to be prompted to inspect the string it has pulled from the serial port.
 
-.. code:: ipython
+.. code:: python
 
     #Process all received data from device 
     rf_explorer.ProcessReceivedString(True)
@@ -105,9 +103,9 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 4.4 Print The Data
 ~~~~~~~~~~~~~~~~~~
 
-This checks the :attr:`RFECommunicator.SweepData.Count <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>` to see if it is new data and then, if it is, prints the data to the screen and then updates the ``last_index`` that we printed. The data is taken from the :meth:`RFExplorer.RFESweepData.RFESweepData.GetAmplitudeDBM` method.
+This checks the ``RFExplorer.RFECommunicator.SweepData.Count`` to see if it is new data and then, if it is, calls the ``print_peak`` function (defined above) to print the data to the screen and then updates the ``last_index`` that we printed.
 
-.. code:: ipython
+.. code:: python
 
     #Print data if received new sweep only
     if (rf_explorer.SweepData.Count > last_index):
@@ -128,73 +126,14 @@ This checks the :attr:`RFECommunicator.SweepData.Count <RFExplorer.RFESweepDataC
 4.5 End Main
 ~~~~~~~~~~~~
 
-This is a leftover block to catch any exceptions that get raised. Disabled for now because it catches too  much.
-
-.. code:: ipython
+.. code:: python
 
     return
 
-5 The Argument Parser
----------------------
-
-This creates the parser for the command-line arguments. It doesn't parse the arguments because example-two uses it after adding more arguments.
-
-.. code:: ipython
-
-    def argument_parser():
-        """Builds the argument parser
-    
-        Returns:
-         ArgumentParser: object to parse the arguments
-        """
-        parser = argparse.ArgumentParser("RF Explorer Example One")
-
-5.1 Serial Port
-~~~~~~~~~~~~~~~
-
-If the :meth:`RFExplorer.RFECommunicator.ConnectPort` isn't given a serial port it will try all the likely ports until it does or doesn't connect. If this doesn't work then pass in a specific port (e.g. ``/dev/ttyUSB0``).
-
-.. code:: ipython
-
-    parser.add_argument(
-        "--serialport", type=str,
-        help="Path to the serial-port file (e.g. '/dev/ttyUSB0') - Default=%(default)s")
-
-5.2 Baud Rate
-~~~~~~~~~~~~~
-
-The baud-rate should be 500,000. Don't change it unless you know something changed.
-
-.. code:: ipython
-
-    parser.add_argument(
-        "--baud-rate", type=int, default=500000,
-        help="Baud-rate for the serial port (default=%(default)s)")
-
-5.3 Run-Time
-~~~~~~~~~~~~
-
-This is the number of seconds to collect data before quitting.
-
-.. code:: ipython
-
-    parser.add_argument(
-        "--run-time", type=int, default=10,
-        help="Seconds to collect data (default=%(default)s)"
-    )
-
-
-5.5 Return The parser
-~~~~~~~~~~~~~~~~~~~~~
-
-.. code:: ipython
-
-    return parser
-
-6 The Executable Block
+5 The Executable Block
 ----------------------
 
-.. code:: ipython
+.. code:: python
 
     if __name__ == "__main__":
         parser = argument_parser()

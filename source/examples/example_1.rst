@@ -14,7 +14,7 @@ It will display the amplitude (in dBm) and the frequency (in MHz) of the frequen
 2 Imports
 ---------
 
-.. code:: ipython
+.. code:: python
 
     # python standard library
     import argparse
@@ -34,12 +34,12 @@ This is a helper function to get only the peak data from the sweep and print it 
 
 These are the output formats for each line.
 
-.. code:: ipython
+.. code:: python
 
     CSV_LINE = "{0},{1},{2}"
     HUMAN_LINE = "Sweep[{0}]: Peak: {1:.3f} MHz\t{2} dBm"
 
-.. code:: ipython
+.. code:: python
 
     def print_peak(rf_explorer, csv_data=False):
         """This function prints the amplitude and frequency peak of the latest received sweep
@@ -54,7 +54,7 @@ These are the output formats for each line.
 
 This gets the current data-count from :py:attr:`RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count`, decrements it to get the current index, then gets the data from :py:meth:`RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetData`.
 
-.. code:: ipython
+.. code:: python
 
     index = rf_explorer.SweepData.Count - 1
     sweep_data = rf_explorer.SweepData.GetData(index)
@@ -70,7 +70,7 @@ In this case we aren't printing all the spectrum data, just the one with the hig
  * :py:meth:`RFExplorer.RFESweepData.RFESweepData.GetAmplitude_DBM`
  * :py:meth:`RFExplorer.RFESweepData.RFESweepData.GetFrequencyMHZ`
 
-.. code:: ipython
+.. code:: python
 
     peak_step = sweep_data.GetPeakStep()      #Get index of the peak
     peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)    #Get amplitude of the peak
@@ -86,7 +86,7 @@ In this case we aren't printing all the spectrum data, just the one with the hig
 
 This is an error to raise if something goes wrong.
 
-.. code:: ipython
+.. code:: python
 
     class CommunicatorException(Exception):
         """The Communicator should raise this if something bad happens"""
@@ -97,7 +97,7 @@ This is an error to raise if something goes wrong.
 
 This is a class to hold the :py:class:`RFExplorer.RFECommunicator` object to make it easier to remember to close it (use :py3:ref:`with`).
 
-.. code:: ipython
+.. code:: python
 
     class Communicator(object):
         """holds the communication object
@@ -119,7 +119,7 @@ This is a class to hold the :py:class:`RFExplorer.RFECommunicator` object to mak
 
 This is the :py:class:`RFExplorer.RFECommunicator` instance.
 
-.. code:: ipython
+.. code:: python
 
     @property
     def rf_explorer(self):
@@ -144,7 +144,7 @@ These are the methods that allow you to use this with a context manager.
 
 When you leave :py3:ref:`with` it will close the RFECommunicator for you.
 
-.. code:: ipython
+.. code:: python
 
     def __enter__(self):
         """returns this object"""
@@ -174,7 +174,7 @@ When you leave :py3:ref:`with` it will close the RFECommunicator for you.
 
 This method runs the things that need to be done before doing a sweep of the spectrum.
 
-.. code:: ipython
+.. code:: python
 
     def set_up(self):
         """Sets up the rf-explorer for scanning
@@ -188,7 +188,7 @@ This method runs the things that need to be done before doing a sweep of the spe
 
 The :py:meth:`RFExplorer.RFECommunicator.GetConnectedPorts` method will gather what it thinks are possible ports that the RF-Explorer might be attached to. As a side-effect it will print the ports it found to stdout.
 
-.. code:: ipython
+.. code:: python
 
     # get candidate serial ports and print out what you discovered
     self.rf_explorer.GetConnectedPorts()
@@ -198,7 +198,7 @@ The :py:meth:`RFExplorer.RFECommunicator.GetConnectedPorts` method will gather w
 
 The :py:meth:`RFExplorer.RFECommunicator.ConnectPort` will try to connect to the RFExplorer. If ``serial_port`` is ``None`` then it will try each candidate port in order. On my desktop this currently fails (I think because it tries ``/dev/ttyS4`` first) so I have to pass in ``/dev/ttyUSB0`` explicitly to make it work.
 
-.. code:: ipython
+.. code:: python
 
     #Connect to available port
     if (not self.rf_explorer.ConnectPort(self.serial_port, self.baud_rate)):
@@ -211,7 +211,7 @@ The :py:meth:`RFExplorer.RFECommunicator.ConnectPort` will try to connect to the
 
 This sends the reset command ("r") using :py:meth:`RFExplorer.RFECommunicator.SendCommand`, then waits forever for the :py:attr:`RFExplorer.RFECommunicator.IsResetEvent` attribute to change to False. Once the device indicates that it is out of the reset-state it sleeps for three seconds to let things settle down.
 
-.. code:: ipython
+.. code:: python
 
     print("Sending the Reset Command")
     self.rf_explorer.SendCommand("r")
@@ -229,7 +229,7 @@ This sends the reset command ("r") using :py:meth:`RFExplorer.RFECommunicator.Se
 
 Most of the methods you want to use assume that the configuration has been set up. This loop makes the request to set it up and then waits forever for the model to be set (waits for :py:attr:`RFExplorer.RFECommunicator.ActiveModel` to not equal :py:obj:`RFExplorer.RFE_Common.eModel.MODEL_NONE`). The ``RFExplorer`` has to be prompted to process the information that the thread is reading off the serial port so in between checking if the model is set it calls :py:meth:`RFExplorer.RFECommunicator.ProcessReceivedString` to tell it to do so (passing in ``True`` tells it to process all the strings it has, not just one).
 
-.. code:: ipython
+.. code:: python
 
     print("requesting the RF Explorer configuration")
     self.rf_explorer.SendCommand_RequestConfigData()
@@ -245,7 +245,7 @@ Most of the methods you want to use assume that the configuration has been set u
 
 The ``RFExplorer`` can talk to both spectrum analyzers and signal generators, but this code will only work with the spectrum analyzer, so use the :py:meth:`RFExplorer.RFECommunicator.IsAnalyzer` method to make sure that's what this is.
 
-.. code:: ipython
+.. code:: python
 
     #If object is an analyzer, we can scan for received sweeps
     if (not self.rf_explorer.IsAnalyzer()):     
@@ -256,7 +256,7 @@ The ``RFExplorer`` can talk to both spectrum analyzers and signal generators, bu
 6 The Main processing loop
 --------------------------
 
-.. code:: ipython
+.. code:: python
 
     def main(arguments, communicator):
         """Runs the example
@@ -273,7 +273,7 @@ The ``RFExplorer`` can talk to both spectrum analyzers and signal generators, bu
 
 This tells the communicator to do the basic setup.
 
-.. code:: ipython
+.. code:: python
 
     communicator.set_up()
 
@@ -282,7 +282,7 @@ This tells the communicator to do the basic setup.
 
 The loop will run continually until we run out of time. This sets up the time variables as well as a ``last_index`` variable that will make sure that we only print the value if it has been updated.
 
-.. code:: ipython
+.. code:: python
 
     print("Receiving data...")
     #Process until we complete scan time
@@ -300,7 +300,7 @@ The loop will run continually until we run out of time. This sets up the time va
 
 As before, the thread needs to be prompted to inspect the string it has pulled from the serial port.
 
-.. code:: ipython
+.. code:: python
 
     #Process all received data from device 
     rf_explorer.ProcessReceivedString(True)
@@ -310,7 +310,7 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 
 This checks the :py:attr:`SweepData <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>` to see if it is new data and then, if it is, calls the ``print_peak`` function (defined above) to print the data to the screen, and then updates the ``last_index`` that we printed.
 
-.. code:: ipython
+.. code:: python
 
     #Print data if received new sweep only
     if (rf_explorer.SweepData.Count > last_index):
@@ -322,7 +322,7 @@ This checks the :py:attr:`SweepData <RFExplorer.RFESweepDataCollection.RFESweepD
 
 This is a leftover block to catch any exceptions that get raised.
 
-.. code:: ipython
+.. code:: python
 
     except Exception as error:
         print("Error: ".format(error))
@@ -333,7 +333,7 @@ This is a leftover block to catch any exceptions that get raised.
 
 This creates the command-line interface for the example using :py:class:`argparse <argparse.ArgumentParser>`.
 
-.. code:: ipython
+.. code:: python
 
     def parse_arguments():
         """Builds the argument parser
@@ -348,7 +348,7 @@ This creates the command-line interface for the example using :py:class:`argpars
 
 If the :py:meth:`RFExplorer.RFECommunicator.ConnectPort` isn't given a serial port it will try all the likely ports until it does or doesn't connect. If this doesn't work then pass in a specific port (e.g. ``/dev/ttyUSB0``).
 
-.. code:: ipython
+.. code:: python
 
     parser.add_argument(
         "--serialport", type=str,
@@ -359,7 +359,7 @@ If the :py:meth:`RFExplorer.RFECommunicator.ConnectPort` isn't given a serial po
 
 The baud-rate should be 500,000, but if it's not, then you can change it here.
 
-.. code:: ipython
+.. code:: python
 
     parser.add_argument(
         "--baud-rate", type=int, default=500000,
@@ -370,7 +370,7 @@ The baud-rate should be 500,000, but if it's not, then you can change it here.
 
 This is the number of seconds to collect data before quitting.
 
-.. code:: ipython
+.. code:: python
 
     parser.add_argument(
         "--run-time", type=int, default=10,
@@ -382,7 +382,7 @@ This is the number of seconds to collect data before quitting.
 
 This tells the code to print a CSV format instead of the usual (human-readable) format.
 
-.. code:: ipython
+.. code:: python
 
     parser.add_argument(
         "--csv-data", action="store_true",
@@ -392,7 +392,7 @@ This tells the code to print a CSV format instead of the usual (human-readable) 
 7.5 Return The Parser
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: ipython
+.. code:: python
 
     return parse
 
@@ -401,7 +401,7 @@ This tells the code to print a CSV format instead of the usual (human-readable) 
 
 This puts the calling of the code into a block so that things can be imported to other files if needed.
 
-.. code:: ipython
+.. code:: python
 
     if __name__ == "__main__":
         parser = argument_parser()

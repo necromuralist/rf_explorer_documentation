@@ -98,6 +98,7 @@ html_theme = 'bootstrap'
 #
 html_theme_options = {
      "bootswatch_theme": "spacelab",
+    "nosidebar": "true"
 }
 
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
@@ -174,3 +175,10 @@ autosummary_generate = True
 autodoc_default_flags = ['members', 'inherited-members', 'show_inheritance']
 autoclass_content = 'both'
 autodoc_member_order = 'groupwise'
+
+# -- Custom CSS ----------------------------------------------
+
+def setup(app):
+    # put 'tuna.css' in _static
+    app.add_stylesheet("tuna.css")
+    return

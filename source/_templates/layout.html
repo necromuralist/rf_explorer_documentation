@@ -1,0 +1,24 @@
+{% extends "!layout.html" %}
+
+{%- block content %}
+  {{ navBar() }}
+  <div id="main-content" class="container">
+    <div class="row">
+      {%- block sidebar1 %}{{ bsidebar() }}{% endblock %}
+      <div class="{{ bs_span_prefix }}{{ bs_content_width }} content">
+        {% block body %}{% endblock %}
+      </div>
+      {% block sidebar2 %} {# possible location for sidebar #} {% endblock %}
+    </div>
+  </div>
+{%- endblock %}
+
+{# from https://stackoverflow.com/questions/31677427/sphinx-overrided-template-block-not-recognized #}
+
+{% block footer %}
+  <footer class="footer navbar-fixed-bottom">
+    <div class="container" style="text-align:center">
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="padding: 10px" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </div>
+  </footer>
+{% endblock %}

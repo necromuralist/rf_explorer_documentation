@@ -7,7 +7,10 @@ from datetime import datetime, timedelta
 import RFExplorer
 
 # this project
-from example_1 import Communicator
+from example_1 import (
+    argument_parser,
+    Communicator,
+    )
 
 def main(arguments, communicator):
     """Runs the example
@@ -32,13 +35,12 @@ def main(arguments, communicator):
         rf_explorer.ProcessReceivedString(True)
         #Print data if received new sweep only
         if (rf_explorer.SweepData.Count > last_index):
-            # print_peak(rf_explorer, arguments.csv_data)
             for index in range(rf_explorer.SweepData.Count):
-                data = rf_explorer.SweepData.m_arrData[index]
+                data = rf_explorer.SweepData.GetData(index)
                 try:
                     output = ','.join(("{:04.1f}".format(data.GetAmplitudeDBM(step, None, False))
                                                          for step in range(data.TotalSteps)))
-                    print("{},{}".format(data.m_Time, output))
+                    print("{},{}".format(data.CaptureTime, output))
                 except TypeError as error:
                     print(error)
                     print("Index: {}".format(index))
@@ -46,25 +48,6 @@ def main(arguments, communicator):
                     raise
             last_index = rf_explorer.SweepData.Count          
     return
-
-def argument_parser():
-    """Builds the argument parser
-    
-    Returns:
-     ArgumentParser: object to parse the arguments
-    """
-    parser = argparse.ArgumentParser("RF Explorer Example One")
-    parser.add_argument(
-        "--serialport", type=str,
-        help="Path to the serial-port file (e.g. '/dev/ttyUSB0') - Default=%(default)s")
-    parser.add_argument(
-        "--baud-rate", type=int, default=500000,
-        help="Baud-rate for the serial port (default=%(default)s)")
-    parser.add_argument(
-        "--run-time", type=int, default=10,
-        help="Seconds to collect data (default=%(default)s)"
-    )
-    return parser
 
 if __name__ == "__main__":
     parser = argument_parser()
