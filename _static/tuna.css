@@ -7,6 +7,11 @@ div#navbar {
 }
 
 
-#main-content {
-    margin-bottom: 40px
+div#main-content {
+    margin-bottom: 80px;
+}
+
+
+.navbar-fixed-bottom {
+    background-color: white;
 }
