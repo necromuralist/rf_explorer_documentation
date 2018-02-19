@@ -111,6 +111,8 @@ html_static_path = ['_static']
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = True
 
+html_favicon = "mr_pipo_waves_small.png"
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.

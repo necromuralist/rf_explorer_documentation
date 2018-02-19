@@ -2,6 +2,10 @@
 
 {%- block content %}
   {{ navBar() }}
+  {% if pagename == "index" %}
+    {% include 'jumbo.html' %}
+  {% endif %}
+  
   <div id="main-content" class="container">
     <div class="row">
       {%- block sidebar1 %}{{ bsidebar() }}{% endblock %}

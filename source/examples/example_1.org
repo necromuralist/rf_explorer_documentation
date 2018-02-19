@@ -56,6 +56,7 @@
 #+END_SRC
 
 * Imports
+  The only real requirement is the =RFExplorer= module - which, despite the name is a *module* not a class.
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref imports
 # python standard library
 import argparse
