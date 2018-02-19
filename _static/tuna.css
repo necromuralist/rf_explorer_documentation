@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css?family=Cinzel+Decorative|EB+Garamond');
 div#navbar {
     background: white;
 }
@@ -14,4 +15,31 @@ div#main-content {
 
 .navbar-fixed-bottom {
     background-color: white;
+}
+
+.jumbo-header {
+    text-align: center;
+    font-size: 60px;
+    color: #4285F4;
+    font-family: 'Cinzel Decorative', "Open Sans", "Helvetica", sans-serif;
+ }
+
+div#home {
+    background-color: white;
+}
+
+img#logo {
+    display:block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+h1, h2, h3 {
+ font-family: 'Cinzel Decorative', "Open Sans", "Helvetica", sans-serif;
+}
+
+body {
+    font-family: "EB Garamond", serif;
+    font-size: x-large;
 }
