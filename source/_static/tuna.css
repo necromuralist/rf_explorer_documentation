@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Cinzel+Decorative|EB+Garamond');
 div#navbar {
     background: white;
+    font-size: 18px;
 }
 
 #page-header {

@@ -13,8 +13,27 @@ The defaults set in the argument parser should have it find the peaks for channe
 
 Changing the settings incurs kind of a lot of overhead so it wouldn't be practical to actually do it like this, but this shows you how to select a sub-set of frequencies to query.
 
+** What's that then?
+
+   So, my explanation of the parameters was probably clear as mud. Let's look at a picture.
+
+.. image:: wifi_channels.svg
+   :align: center
+
+This is a diagram for the older standards - 802.11 n uses channels that are 20 MHz, but this will be useful for my explanation, I hope. 
+
+Since each channel is 22MHz wide, you subtract 11 MHz from each center frequency to find its left value and add 11 MHZ to the center value to find its right value. So, since the center of channel 1 is at 2412 MHz, its leftmost edge is at 2401 MHz and its rightmost edge is at 2423 MHz. So, to sweep all of channel 1, your settings would be:
+
+| Parameter    | Value |
+|--------------+-------|
+| =scan-start= |  2401 |
+| =scan-end=   |  2423 |
+| =span-size=  |    22 |
+
+If you wanted to scan the entire 2.4 GHz spectrum, the =scan-end= would be 2473 MHz, and using the 11 MHz span-size would cause the RF-Explorer to checck three sub-ranges within the total 2.4 GHz band.
+
 * Channel Reference
-  These are the frequency ranges for the main channels (2.4 GHz).
+  These are the frequency ranges for the main channels (2.4 GHz) for 8O2.11n.
 
 |        | Channel 1 | Channel 6 | Channel 11 |
 |--------+-----------+-----------+------------|
@@ -100,7 +119,7 @@ def check_settings(rf_explorer, arguments):
 
 * Main Function
 #+BEGIN_SRC ipython :session example2 :results none :noweb-ref main-function
-def main(arguments, communicator):
+def main(arguments, communicator, clean=False):
     """Runs the example
 
     Args:
@@ -116,6 +135,8 @@ def main(arguments, communicator):
             #set new frequency range
             print("Updating Device Configuration: {}, {}".format(StartFreq, StopFreq))
             rf_explorer.UpdateDeviceConfig(StartFreq, StopFreq)
+            if clean:
+                rf_explorer.SweepData.CleanAll()
             print("updated")
             LastStartFreq = 0
             nInd = 0
@@ -214,3 +235,145 @@ if __name__ == "__main__":
 
 <<executable-section>>
 #+END_SRC
+* Sample Output
+** Trial 1
+   This will use the defaults to sweep all the channels for 4 seconds.
+   
+#+BEGIN_SRC ipython :session example2 :results output
+from example_1 import  (
+    argument_parser,
+    print_peak,
+    Communicator,
+)
+from example_2 import (
+    add_arguments,
+    main,
+    )
+
+def sample(clean=False):
+    parser = argument_parser()
+    parser = add_arguments(parser)
+    arguments = parser.parse_args("--serialport /dev/ttyUSB0 --run-time 1 --reset-time 4".split())
+    with Communicator(arguments.serialport,
+                      arguments.baud_rate,
+                      settle_time=arguments.reset_time) as communicator:
+        main(arguments, communicator, clean)
+sample()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Detected COM ports:
+  ,* /dev/ttyS0
+  ,* /dev/ttyUSB0
+/dev/ttyS0 is a valid available port.
+/dev/ttyUSB0 is a valid available port.
+RF Explorer Valid Ports found: 2 - /dev/ttyS0 /dev/ttyUSB0 
+User COM port: /dev/ttyUSB0
+Connected: /dev/ttyUSB0, 500000 bauds
+Sending the Reset Command
+Waiting until the device resets
+Reset, sleeping for 4.0 seconds to let the device settle
+requesting the RF Explorer configuration
+Waiting for the model to not be None
+Received RF Explorer device model info:#C2-M:004,255,01.11
+New Freq range - buffer cleared.
+
+RF Explorer 23-Apr-13 01.04.05 01.11
+Model is set
+User settings:
+Start freq: 2402 MHz - Stop freq: 2477 MHz
+Updating Device Configuration: 2402, 2422
+updated
+Waiting for data
+Freq range[1]: 2402 - 2422 MHz
+Mon Feb 19 13:30:09 2018, Sweep[3]: Peak: 2405.214 MHz	-100.0 dBm
+Updating device config
+Waiting for sweep_data update
+Received RF Explorer device model info:#C2-M:004,255,01.11
+New Freq range - buffer cleared.
+New Freq range - buffer cleared.
+New Freq range - buffer cleared.
+Waiting for data
+Freq range[2]: 2427 - 2447 MHz
+Mon Feb 19 13:30:10 2018, Sweep[0]: Peak: 2433.071 MHz	-67.5 dBm
+Updating device config
+Waiting for sweep_data update
+New Freq range - buffer cleared.
+Waiting for data
+Freq range[3]: 2452 - 2472 MHz
+Mon Feb 19 13:30:10 2018, Sweep[1]: Peak: 2457.179 MHz	-98.5 dBm
+Disconnected.
+#+end_example
+
+At least one of the times when I ran this, the first peak was outside of the range that had been set.
+
+#+BEGIN_EXAMPLE
+Freq range[1]: 2402 - 2422 MHz
+Mon Feb 19 13:20:26 2018, Sweep[3]: Peak: 2465.036 MHz	-92.5 dBm
+#+END_EXAMPLE
+
+To try and make this less likely, I added calling the =RFExplorer.RFESweepDataCollection.CleanAll= method. I don't know if that's really the fix, but it's something that has to be looked into.
+
+
+#+BEGIN_SRC ipython :session example2 :results output
+sample(clean=True)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Detected COM ports:
+  ,* /dev/ttyS0
+  ,* /dev/ttyUSB0
+/dev/ttyS0 is a valid available port.
+/dev/ttyUSB0 is a valid available port.
+RF Explorer Valid Ports found: 2 - /dev/ttyS0 /dev/ttyUSB0 
+User COM port: /dev/ttyUSB0
+Connected: /dev/ttyUSB0, 500000 bauds
+Sending the Reset Command
+Waiting until the device resets
+Reset, sleeping for 4.0 seconds to let the device settle
+requesting the RF Explorer configuration
+Waiting for the model to not be None
+Received RF Explorer device model info:#C2-M:004,255,01.11
+New Freq range - buffer cleared.
+
+RF Explorer 23-Apr-13 01.04.05 01.11
+Model is set
+User settings:
+Start freq: 2402 MHz - Stop freq: 2477 MHz
+Updating Device Configuration: 2402, 2422
+updated
+Waiting for data
+Received RF Explorer device model info:#C2-M:004,255,01.11
+New Freq range - buffer cleared.
+New Freq range - buffer cleared.
+Freq range[1]: 2402 - 2422 MHz
+Mon Feb 19 13:30:45 2018, Sweep[0]: Peak: 2405.214 MHz	-99.5 dBm
+Updating device config
+Waiting for sweep_data update
+New Freq range - buffer cleared.
+Waiting for data
+Freq range[2]: 2427 - 2447 MHz
+Mon Feb 19 13:30:45 2018, Sweep[1]: Peak: 2428.786 MHz	-76.5 dBm
+Updating device config
+Waiting for sweep_data update
+New Freq range - buffer cleared.
+Waiting for data
+Freq range[3]: 2452 - 2472 MHz
+Mon Feb 19 13:30:46 2018, Sweep[2]: Peak: 2459.500 MHz	-101.0 dBm
+Disconnected.
+#+end_example
+
+The six lines we really care about here are:
+
+#+BEGIN_EXAMPLE
+Freq range[1]: 2402 - 2422 MHz
+Mon Feb 19 13:30:45 2018, Sweep[0]: Peak: 2405.214 MHz	-99.5 dBm
+Freq range[2]: 2427 - 2447 MHz
+Mon Feb 19 13:30:45 2018, Sweep[1]: Peak: 2428.786 MHz	-76.5 dBm
+Freq range[3]: 2452 - 2472 MHz
+Mon Feb 19 13:30:46 2018, Sweep[2]: Peak: 2459.500 MHz	-101.0 dBm
+#+END_EXAMPLE
+
+Well, the three we really care about are the actual Peaks. It seems kind of suspicious to me that the peak value for channel 11 was -101 dBm (and channel 1 looks suspicious too). But this is an exploration, so we'll have to see how things progress.

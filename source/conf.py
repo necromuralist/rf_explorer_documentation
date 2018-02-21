@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'RF-Explorer Documentation'
+project = u'RF-Explorer Explorations'
 copyright = u'2017, Cloistered Monkey'
 author = u'necromuralist'
 

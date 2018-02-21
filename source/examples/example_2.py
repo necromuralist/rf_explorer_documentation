@@ -63,7 +63,7 @@ def check_settings(rf_explorer, arguments):
     
     return rf_explorer.SpanMHZ, rf_explorer.StartFrequencyMHZ, stop_frequency
 
-def main(arguments, communicator):
+def main(arguments, communicator, clean=False):
     """Runs the example
 
     Args:
@@ -79,6 +79,8 @@ def main(arguments, communicator):
             #set new frequency range
             print("Updating Device Configuration: {}, {}".format(StartFreq, StopFreq))
             rf_explorer.UpdateDeviceConfig(StartFreq, StopFreq)
+            if clean:
+                rf_explorer.SweepData.CleanAll()
             print("updated")
             LastStartFreq = 0
             nInd = 0

@@ -18,10 +18,9 @@ def print_peak(rf_explorer, csv_data=False):
     """
     index = rf_explorer.SweepData.Count - 1
     sweep_data = rf_explorer.SweepData.GetData(index)
-    peak_step = sweep_data.GetPeakStep()      #Get index of the peak
-    peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)    #Get amplitude of the peak
-    peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)   #Get frequency of the peak
-    
+    peak_step = sweep_data.GetPeakStep()
+    peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)
+    peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)
     line = CSV_LINE if csv_data else HUMAN_LINE
     
     print(line.format(datetime.now().strftime("%c"), index, peak_frequency,
@@ -162,6 +161,7 @@ def argument_parser():
     parser = argparse.ArgumentParser("RF Explorer Example One")
     parser.add_argument(
         "--serialport", type=str,
+        default="/dev/ttyUSB0",
         help="Path to the serial-port file (e.g. '/dev/ttyUSB0') - Default=%(default)s")
     parser.add_argument(
         "--baud-rate", type=int, default=500000,

@@ -2,7 +2,8 @@
 
 * Description
   This is the first example that comes with the =RFExplorer= repository.
-  It will display the amplitude (in dBm) and the frequency (in MHz) of the maximum value in the sweep data.
+  It will display the amplitude (in dBm) and the frequency (in MHz) of the maximum value in the sweep data. The /sweep/ is one sweep from the lowest to the highest frequency. It is made up of indiviual /steps/.
+
   The amount of stored sweep data is controlled by the length of time that it scans. By default, it samples ten times a second, so if you are comparing it to something that reports less frequently, you will need to aggregate it somehow.
 
 * Tangle
@@ -14,6 +15,9 @@
 
 <<print-peak>>
 <<get-data>>
+<<get-peak-step>>
+<<get-peak-amplitude>>
+<<get-peak-frequency>>
 <<get-peak-data>>
 
 <<global-variables>>
@@ -78,6 +82,7 @@ CSV_LINE = "{0},{1},{2},{3}"
 HUMAN_LINE = "{0}, Sweep[{1}]: Peak: {2:.3f} MHz\t{3} dBm"
 #+END_SRC
 
+** The Function Declaration
 #+BEGIN_SRC ipython :session example1 :results output :noweb-ref print-peak
 def print_peak(rf_explorer, csv_data=False):
     """This function prints the amplitude and frequency peak of the latest received sweep
@@ -87,26 +92,39 @@ def print_peak(rf_explorer, csv_data=False):
      csv_data (bool): if True, print as CSV output
     """
 #+END_SRC
-
 ** Get The Data
 
-   /This is part of the print_peak function./ This gets the current data-count from =RFExplorer.RFECommunicator.Count, decrements it to get the current index, then gets the data from =RFExplorer.RFECommunicator.SweepData.GetData=.
+   /This is part of the print_peak function,/ it gets the current data-count from =RFExplorer.RFECommunicator.SweepData.Count=, decrements it to get the current index, then gets the data from =RFExplorer.RFECommunicator.SweepData.GetData=.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-data
     index = rf_explorer.SweepData.Count - 1
     sweep_data = rf_explorer.SweepData.GetData(index)
 #+END_SRC
 
-The sweep_data is an instance of =RFExplorer.RFESweepData.RFESweepData=.
+The =sweep_data= is an instance of =RFExplorer.RFESweepData.RFESweepData=.
 
 ** Get The Peak Data
    In this case we aren't printing all the data, just the peak.
+*** The Index
+    First we get the index of the step that had the highest value in the sweep and store it in the =peak_step= variable
+#+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-peak-step
+    peak_step = sweep_data.GetPeakStep()
+#+END_SRC
+*** The Amplitude
+    Next, we use the index stored in =peak_step= to get the amplitude that was recorded for that step.
 
+#+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-peak-amplitude
+    peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)
+#+END_SRC
+*** Peak Frequency
+    Now we get the frequency represented by the step - the one that had the greatest amplitude.
+
+#+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-peak-frequency
+    peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)
+#+END_SRC
+*** Output
+    Finally, we combine the values and print them to the screen
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-peak-data
-    peak_step = sweep_data.GetPeakStep()      #Get index of the peak
-    peak_amplitude = sweep_data.GetAmplitude_DBM(peak_step)    #Get amplitude of the peak
-    peak_frequency = sweep_data.GetFrequencyMHZ(peak_step)   #Get frequency of the peak
-    
     line = CSV_LINE if csv_data else HUMAN_LINE
     
     print(line.format(datetime.now().strftime("%c"), index, peak_frequency,
@@ -144,7 +162,7 @@ class Communicator(object):
 
 ** The RFE Instance
 
-   This is the :py:class:`RFExplorer.RFECommunicator` instance.
+   This is the =RFExplorer.RFECommunicator= instance.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref rfe-property
 @property
@@ -206,7 +224,7 @@ def set_up(self):
     """
 #+END_SRC
 
-** Get the ports
+*** Get the ports
 
 The =RFExplorer.RFECommunicator.GetConnectedPorts= will gather what it thinks are possible ports that the RF-Explorer might be attached to. As a side-effect it will print the ports it found to stdout.
 
@@ -215,7 +233,7 @@ The =RFExplorer.RFECommunicator.GetConnectedPorts= will gather what it thinks ar
 self.rf_explorer.GetConnectedPorts()
 #+END_SRC
 
-** Connect to the RFExplorer
+*** Connect to the RFExplorer
    The =RFExplorer.RFECommunicator.ConnectPort= will try to connect to the RFExplorer. If =serial_port= is =None= then it will try each candidate port in order. On my desktop this currently fails (I think because it tries =/dev/ttyS4= first) so I have to pass in =/dev/ttyUSB0= explicitly to make it work.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref connect-port
@@ -226,8 +244,8 @@ if (not self.rf_explorer.ConnectPort(self.serial_port, self.baud_rate)):
         self.baud_rate))
 #+END_SRC
 
-** Reset The Device
-   This sends the reboot command ("r") using =RFExplorer.RFECommunicator.SendCommand=, then waits forever for the =RFExplorer.RFECommunicator.IsResetEvent= attribute to change to False. Once the device indicates that it is out of the reset-state it sleeps for three seconds to let things settle down.
+*** Reset The Device
+   This sends the reboot command ("r") using =RFExplorer.RFECommunicator.SendCommand=, then waits forever for the =RFExplorer.RFECommunicator.IsResetEvent= attribute to change to False.
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref reset-explorer
 print("Sending the Reset Command")
@@ -236,17 +254,19 @@ self.rf_explorer.SendCommand("r")
 print("Waiting until the device resets")
 while(self.rf_explorer.IsResetEvent):
     pass
+#+END_SRC
+    
+*** The Model And Configuration
 
+   Most of the methods you want to use assume that the configuration has been set up. This loop makes the request to set it up and then waits forever for the model to be set (waits for =RFExplorer.RFECommunicator.ActiveModel= to not equal =RFExplorer.RFE_Common.eModel.MODEL_NONE=). The =RFExplorer= has to be prompted to process the information that the thread is reading off the serial port so in between checking if the model is set it calls =RFExplorer.RFECommunicator.ProcessReceivedString= to tell it to do so. Once the model is set, we can assume that we're talking to the RF Explorer.
+
+There's a sleep before making the call to =RFExplorer.SendCommand_RequestConfdigData=. This sleep is really important, and how long it should be is kind of fuzzy. If the sleep time is too short, when the call is made the /RF Explorer/ will hang with a "Pre-Calibration" method, and the only way to restart it is to unplug the USB cord (and turn it off if it was on).
+
+#+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-model
 print("Reset, sleeping for {} seconds to let the device settle".format(
     self.settle_time))
 time.sleep(self.settle_time)
-#+END_SRC
-    
-** The Model And Configuration
 
-   Most of the methods you want to use assume that the configuration has been set up. This loop makes the request to set it up and then waits forever for the model to be set (waits for =RFExplorer.RFECommunicator.ActiveModel= to not equal =RFExplorer.RFE_Common.eModel.MODEL_NONE=). The =RFExplorer= has to be prompted to process the information that the thread is reading off the serial port so in between checking if the model is set it calls =RFExplorer.RFECommunicator.ProcessReceivedString= to tell it to do so.
-
-#+BEGIN_SRC ipython :session example1 :results none :noweb-ref get-model
 print("requesting the RF Explorer configuration")
 self.rf_explorer.SendCommand_RequestConfigData()
 
@@ -256,7 +276,7 @@ while(self.rf_explorer.ActiveModel == RFExplorer.RFE_Common.eModel.MODEL_NONE):
 
 print("Model is set")
 #+END_SRC
-** Analyzer Check
+*** Analyzer Check
    The =RFExplorer= can talk to both spectrum analyzers and signal generators, but this code will only work with the spectrum analyzer, so use the =RFExplorer.RFECommunicator.IsAnalyzer= method to make sure that's what this is
 
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref analyzer-check
@@ -351,6 +371,7 @@ def argument_parser():
 #+BEGIN_SRC ipython :session example1 :results none :noweb-ref serial-port
 parser.add_argument(
     "--serialport", type=str,
+    default="/dev/ttyUSB0",
     help="Path to the serial-port file (e.g. '/dev/ttyUSB0') - Default=%(default)s")
 #+END_SRC
 
@@ -400,14 +421,126 @@ if __name__ == "__main__":
 #+END_SRC
 * Sample output
 ** Default
-  This is the default output.
+  This is an example of the default output.
 
-#+BEGIN_SRC ipython :session example1 :results output
+*Warning:* you have to be a member of the =dialout= group to have access to the serial port (which you need to run this).
+
+#+BEGIN_SRC ipython :session example11 :results output
+from example_1 import (
+    argument_parser,
+    main,
+    Communicator,
+    )
 parser = argument_parser()
-arguments = parser.parse_args(["--run-time", "5"])
+arguments = parser.parse_args(["--run-time", "3", "--serialport", "/dev/ttyUSB0"])
+with Communicator(arguments.serialport, arguments.baud_rate) as communicator:
+    main(arguments, communicator)
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+Detected COM ports:
+  ,* /dev/ttyS0
+  ,* /dev/ttyUSB0
+/dev/ttyS0 is a valid available port.
+/dev/ttyUSB0 is a valid available port.
+RF Explorer Valid Ports found: 2 - /dev/ttyS0 /dev/ttyUSB0 
+User COM port: /dev/ttyUSB0
+Connected: /dev/ttyUSB0, 500000 bauds
+Sending the Reset Command
+Waiting until the device resets
+Reset, sleeping for 3 seconds to let the device settle
+requesting the RF Explorer configuration
+Waiting for the model to not be None
+Received RF Explorer device model info:#C2-M:004,255,01.11
+New Freq range - buffer cleared.
+
+RF Explorer 23-Apr-13 01.04.05 01.11
+Model is set
+Receiving data...
+Sun Feb 18 18:00:15 2018, Sweep[3]: Peak: 2407.000 MHz	-55.5 dBm
+Received RF Explorer device model info:#C2-M:004,255,01.11
+Sun Feb 18 18:00:16 2018, Sweep[4]: Peak: 2465.750 MHz	-94.0 dBm
+Sun Feb 18 18:00:16 2018, Sweep[5]: Peak: 2445.125 MHz	-94.5 dBm
+Sun Feb 18 18:00:16 2018, Sweep[6]: Peak: 2455.125 MHz	-93.0 dBm
+Sun Feb 18 18:00:16 2018, Sweep[7]: Peak: 2458.875 MHz	-91.5 dBm
+Sun Feb 18 18:00:16 2018, Sweep[8]: Peak: 2470.125 MHz	-88.0 dBm
+Sun Feb 18 18:00:16 2018, Sweep[9]: Peak: 2402.000 MHz	-92.5 dBm
+Sun Feb 18 18:00:16 2018, Sweep[10]: Peak: 2463.875 MHz	-89.5 dBm
+Sun Feb 18 18:00:17 2018, Sweep[11]: Peak: 2463.250 MHz	-87.5 dBm
+Sun Feb 18 18:00:17 2018, Sweep[12]: Peak: 2463.250 MHz	-86.0 dBm
+Sun Feb 18 18:00:17 2018, Sweep[13]: Peak: 2463.250 MHz	-88.0 dBm
+Sun Feb 18 18:00:17 2018, Sweep[14]: Peak: 2461.375 MHz	-83.5 dBm
+Sun Feb 18 18:00:17 2018, Sweep[15]: Peak: 2460.750 MHz	-82.5 dBm
+Sun Feb 18 18:00:17 2018, Sweep[16]: Peak: 2460.750 MHz	-81.5 dBm
+Sun Feb 18 18:00:17 2018, Sweep[17]: Peak: 2460.125 MHz	-80.0 dBm
+Sun Feb 18 18:00:17 2018, Sweep[18]: Peak: 2458.250 MHz	-82.0 dBm
+Sun Feb 18 18:00:17 2018, Sweep[19]: Peak: 2458.875 MHz	-81.5 dBm
+Sun Feb 18 18:00:17 2018, Sweep[20]: Peak: 2467.625 MHz	-81.5 dBm
+Sun Feb 18 18:00:18 2018, Sweep[21]: Peak: 2468.875 MHz	-83.0 dBm
+Disconnected.
+#+end_example
+
+There are two things to notice:
+ 1. There doesn't appear to have been much activity.
+ 2. The three second cutoff didn't grab all the samples for the final second.
+
+It looks like the three seconds is an absolute value, so even thought it shows 18:00:16 as the start, it probably started at some point within that second and ended at the start of the 18:00:18 second. So if you try and aggregate things into seconds , you'll have to take that into consideration - maybe trim off the ends.
 
 ** CSV
-#+BEGIN_SRC ipython :session example1 :results output
-arguments = parser.parse_args(["--run-time", "3", "--csv-data"])
+   Here's the version where I try to create a comma-separated output.
+   
+#+BEGIN_SRC ipython :session example11 :results output
+arguments = parser.parse_args(["--run-time", "3", "--csv-data", "--serialport", "/dev/ttyUSB0"])
+with Communicator(arguments.serialport, arguments.baud_rate) as communicator:
+    main(arguments, communicator)
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+Detected COM ports:
+  ,* /dev/ttyS0
+  ,* /dev/ttyUSB0
+/dev/ttyS0 is a valid available port.
+/dev/ttyUSB0 is a valid available port.
+RF Explorer Valid Ports found: 2 - /dev/ttyS0 /dev/ttyUSB0 
+User COM port: /dev/ttyUSB0
+Connected: /dev/ttyUSB0, 500000 bauds
+Sending the Reset Command
+Waiting until the device resets
+Reset, sleeping for 3 seconds to let the device settle
+requesting the RF Explorer configuration
+Waiting for the model to not be None
+Received RF Explorer device model info:#C2-M:004,255,01.11
+New Freq range - buffer cleared.
+
+RF Explorer 23-Apr-13 01.04.05 01.11
+Model is set
+Receiving data...
+index,frequency (MHz), amplitude (dBm)
+Sun Feb 18 18:05:44 2018,2,2428.25,-94.5
+Received RF Explorer device model info:#C2-M:004,255,01.11
+Sun Feb 18 18:05:45 2018,3,2407.625,-93.5
+Sun Feb 18 18:05:45 2018,4,2418.25,-90.0
+Sun Feb 18 18:05:45 2018,5,2468.25,-81.0
+Sun Feb 18 18:05:45 2018,6,2467.625,-81.0
+Sun Feb 18 18:05:45 2018,7,2416.375,-86.0
+Sun Feb 18 18:05:46 2018,8,2415.75,-80.5
+Sun Feb 18 18:05:46 2018,9,2415.75,-79.0
+Sun Feb 18 18:05:46 2018,10,2415.75,-79.5
+Sun Feb 18 18:05:46 2018,11,2414.5,-79.5
+Sun Feb 18 18:05:46 2018,12,2413.875,-78.5
+Sun Feb 18 18:05:46 2018,13,2413.875,-79.0
+Sun Feb 18 18:05:46 2018,14,2415.125,-76.5
+Sun Feb 18 18:05:46 2018,15,2413.25,-75.5
+Sun Feb 18 18:05:46 2018,16,2413.25,-75.5
+Sun Feb 18 18:05:46 2018,17,2412.625,-76.5
+Sun Feb 18 18:05:47 2018,18,2412.625,-76.0
+Sun Feb 18 18:05:47 2018,19,2412.625,-74.0
+Sun Feb 18 18:05:47 2018,20,2410.75,-75.5
+Sun Feb 18 18:05:47 2018,21,2411.375,-77.0
+Sun Feb 18 18:05:47 2018,22,2410.125,-75.5
+Disconnected.
+#+end_example
+
+The values are a little higher, so maybe there was more going on.
