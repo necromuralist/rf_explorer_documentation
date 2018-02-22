@@ -2,8 +2,6 @@
 RF-Explorer Example One - Max Value
 ===================================
 
-    :Author: hades
-
 .. contents::
 
 
@@ -11,8 +9,8 @@ RF-Explorer Example One - Max Value
 1 Description
 -------------
 
-This is the first example that comes with the ``RFExplorer`` repository.
-It will display the amplitude (in dBm) and the frequency (in MHz) of the maximum value in the sweep data. The *sweep* is one sweep from the lowest to the highest frequency. It is made up of indiviual *steps*.
+This is the first example that comes with the :mod:`RFExplorer` repository.
+It will display the amplitude (in dBm) and the frequency (in MHz) of the maximum value in the sweep data. The *sweep* is one sweep from the lowest to the highest frequency. It is made up of indiviual *steps* - discrete subdivisions within the sweep.
 
 The amount of stored sweep data is controlled by the length of time that it scans. By default, it samples ten times a second, so if you are comparing it to something that reports less frequently, you will need to aggregate it somehow.
 
@@ -73,7 +71,7 @@ The amount of stored sweep data is controlled by the length of time that it scan
 3 Imports
 ---------
 
-The only real requirement is the ``RFExplorer`` module - which, despite the name is a **module** not a class.
+The only real requirement is the :mod:`RFExplorer` module - which, despite the name is a **module** not a class.
 
 .. code:: ipython
 
@@ -116,14 +114,14 @@ These are the output formats for each line.
 4.3 Get The Data
 ~~~~~~~~~~~~~~~~
 
-*This is part of the print\_peak function,* it gets the current data-count from ``RFExplorer.RFECommunicator.SweepData.Count``, decrements it to get the current index, then gets the data from ``RFExplorer.RFECommunicator.SweepData.GetData``.
+*This is part of the print_peak function,* it gets the current data-count from :attr:`RFESweepDataCollection.Count <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>`, decrements it to get the current index, then gets the data from :py:meth:`RFESweepDataCollection.GetData <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetData>`.
 
 .. code:: ipython
 
     index = rf_explorer.SweepData.Count - 1
     sweep_data = rf_explorer.SweepData.GetData(index)
 
-The ``sweep_data`` is an instance of ``RFExplorer.RFESweepData.RFESweepData``.
+The ``sweep_data`` is an instance of :class:`RFESweepData <RFExplorer.RFESweepData.RFESweepData>`.
 
 4.4 Get The Peak Data
 ~~~~~~~~~~~~~~~~~~~~~
@@ -133,7 +131,7 @@ In this case we aren't printing all the data, just the peak.
 4.4.1 The Index
 ^^^^^^^^^^^^^^^
 
-First we get the index of the step that had the highest value in the sweep and store it in the ``peak_step`` variable
+First we get the index of the step that had the highest value in the sweep (using :py:meth:`RFESweepDataCollection.GetPeakStep <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.GetPeakStep>`) and store it in the ``peak_step`` variable
 
 .. code:: ipython
 
@@ -160,7 +158,7 @@ Now we get the frequency represented by the step - the one that had the greatest
 4.4.4 Output
 ^^^^^^^^^^^^
 
-Finally, we combine the values and print them to the screen
+Finally, we combine the values and print them to the screen.
 
 .. code:: ipython
 
@@ -205,7 +203,7 @@ This is a class to hold the rfe-object to take care of some common actions.
 6.1 The RFE Instance
 ~~~~~~~~~~~~~~~~~~~~
 
-This is the ``RFExplorer.RFECommunicator`` instance.
+This is the :class:`RFExplorer.RFECommunicator` instance.
 
 .. code:: ipython
 
@@ -274,7 +272,9 @@ This method runs the things that need to be done before doing a sweep of the spe
 6.3.1 Get the ports
 ^^^^^^^^^^^^^^^^^^^
 
-The ``RFExplorer.RFECommunicator.GetConnectedPorts`` will gather what it thinks are possible ports that the RF-Explorer might be attached to. As a side-effect it will print the ports it found to stdout.
+The :meth:`RFExplorer.RFECommunicator.GetConnectedPorts` will gather what it thinks are possible ports that the RF-Explorer might be attached to. As a side-effect it will print the ports it found to stdout.
+
+.. note:: I don't think this is necessary if you pass in the port, and getting rid of it will stop the printing of the ports.
 
 .. code:: ipython
 
@@ -284,7 +284,7 @@ The ``RFExplorer.RFECommunicator.GetConnectedPorts`` will gather what it thinks 
 6.3.2 Connect to the RFExplorer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``RFExplorer.RFECommunicator.ConnectPort`` will try to connect to the RFExplorer. If ``serial_port`` is ``None`` then it will try each candidate port in order. On my desktop this currently fails (I think because it tries ``/dev/ttyS4`` first) so I have to pass in ``/dev/ttyUSB0`` explicitly to make it work.
+The :meth:`RFExplorer.RFECommunicator.ConnectPort` will try to connect to the RFExplorer. If ``serial_port`` is ``None`` then it will try each candidate port in order. On my desktop this currently fails (I think because it tries ``/dev/ttyS4`` first) so I have to pass in ``/dev/ttyUSB0`` explicitly to make it work.
 
 .. code:: ipython
 
@@ -297,7 +297,7 @@ The ``RFExplorer.RFECommunicator.ConnectPort`` will try to connect to the RFExpl
 6.3.3 Reset The Device
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This sends the reboot command ("r") using ``RFExplorer.RFECommunicator.SendCommand``, then waits forever for the ``RFExplorer.RFECommunicator.IsResetEvent`` attribute to change to False. Once the device indicates that it is out of the reset-state it sleeps for three seconds to let things settle down.
+This sends the reboot command ("r") using :meth:`RFExplorer.RFECommunicator.SendCommand`, then waits forever for the :attr:`RFExplorer.RFECommunicator.IsResetEvent` attribute to change to False. Once the device indicates that it is out of the reset-state it sleeps for three seconds to let things settle down.
 
 .. code:: ipython
 
@@ -315,7 +315,7 @@ This sends the reboot command ("r") using ``RFExplorer.RFECommunicator.SendComma
 6.3.4 The Model And Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Most of the methods you want to use assume that the configuration has been set up. This loop makes the request to set it up and then waits forever for the model to be set (waits for ``RFExplorer.RFECommunicator.ActiveModel`` to not equal ``RFExplorer.RFE_Common.eModel.MODEL_NONE``). The ``RFExplorer`` has to be prompted to process the information that the thread is reading off the serial port so in between checking if the model is set it calls ``RFExplorer.RFECommunicator.ProcessReceivedString`` to tell it to do so. Once the model is set, we can assume that we're talking to the RF Explorer.
+Most of the methods you want to use assume that the configuration has been set up. This loop makes the request to set it up and then waits forever for the model to be set (waits for :attr:`RFExplorer.RFECommunicator.ActiveModel` to not equal :attr:`RFExplorer.RFE_Common.eModel.MODEL_NONE`). The ``RFExplorer`` has to be prompted to process the information that the thread is reading off the serial port so in between checking if the model is set it calls :meth:`RFExplorer.RFECommunicator.ProcessReceivedString` to tell it to do so. Once the model is set, we can assume that we're talking to the RF Explorer.
 
 .. code:: ipython
 
@@ -331,7 +331,7 @@ Most of the methods you want to use assume that the configuration has been set u
 6.3.5 Analyzer Check
 ^^^^^^^^^^^^^^^^^^^^
 
-The ``RFExplorer`` can talk to both spectrum analyzers and signal generators, but this code will only work with the spectrum analyzer, so use the ``RFExplorer.RFECommunicator.IsAnalyzer`` method to make sure that's what this is
+The ``RFExplorer`` can talk to both spectrum analyzers and signal generators, but this code will only work with the spectrum analyzer, so if you want to be defensive you can use the :meth:`RFExplorer.RFECommunicator.IsAnalyzer` method to make sure that's what this is
 
 .. code:: ipython
 
@@ -368,7 +368,7 @@ This tells the communicator to do the basic setup.
 7.2 Setup the Loop
 ~~~~~~~~~~~~~~~~~~
 
-The loop will run continually until we run out of time. This sets up the time variables as well as a ``last_index`` variable that will make sure that we only print the value if it has been updated.
+The loop will run continually until we run out of time. This sets up the time variables as well as a ``last_index`` variable that holds the last retrieved index so we can compare it to the current one to make sure that we only print the value if it has been updated.
 
 .. code:: ipython
 
@@ -396,7 +396,7 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 7.4 Print The Data
 ~~~~~~~~~~~~~~~~~~
 
-This checks the ``RFExplorer.RFECommunicator.SweepData.Count`` to see if it is new data and then, if it is, calls the ``print_peak`` function (defined above) to print the data to the screen and then updates the ``last_index`` that we printed.
+This checks the :attr:`RFExplorer.RFECommunicator.SweepData.Count` to see if it is new data and then, if it is, calls the ``print_peak`` function (defined above) to print the data to the screen and then updates the ``last_index`` that we printed.
 
 .. code:: ipython
 
@@ -434,7 +434,7 @@ This creates the parser for the command-line arguments. It doesn't parse the arg
 8.1 Serial Port
 ~~~~~~~~~~~~~~~
 
-If the \`RFExplorer.RFECommunicator.ConnectPort\` isn't given a serial port it will try all the likely ports until it does or doesn't connect. If this doesn't work then pass in a specific port (e.g. ``/dev/ttyUSB0``).
+If the :meth:`RFExplorer.RFECommunicator.ConnectPort` isn't given a serial port it will try all the likely ports until it does or doesn't connect. I've found it better to pass in a specific port (e.g. ``/dev/ttyUSB0``).
 
 .. code:: ipython
 
