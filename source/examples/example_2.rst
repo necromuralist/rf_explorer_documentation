@@ -2,8 +2,6 @@
 Example Two - Frequency Sub-ranges
 ==================================
 
-    :Author: hades
-
 .. contents::
 
 This is an example taken from the RFExplorer for python repository. It extends example one by looking at sub-ranges of the spectrum and reporting the maximum value for each sub-range.
@@ -27,7 +25,7 @@ Changing the settings incurs kind of a lot of overhead so it wouldn't be practic
 
 So, my explanation of the parameters was probably clear as mud. Let's look at a picture.
 
-\.. mage:: wifi\_channels.svg
+.. image:: wifi_channels.svg
    :align: center
 
 This is a diagram for the older standards - 802.11 n uses channels that are 20 MHz, but this will be useful for my explanation, I hope. 
