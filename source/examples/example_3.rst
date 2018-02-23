@@ -2,6 +2,8 @@
 RF-Explorer Example Three
 =========================
 
+    :Author: dogen
+
 .. contents::
 
 
@@ -14,23 +16,23 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 2 Tangle
 --------
 
-.. code:: python
+.. code:: ipython
 
     <<imports>>
 
     <<main>>
-            <<setup-communicator>>
-            <<setup-loop>>
-                <<process-string>>
-                <<print-data>>
-        <<end-main>>
+    <<setup-communicator>>
+    <<setup-loop>>
+    <<process-string>>
+    <<print-data>>
+    <<end-main>>
 
     <<executable-block>>
 
 3 Imports
 ---------
 
-.. code:: python
+.. code:: ipython
 
     # python standard library
     from datetime import datetime, timedelta
@@ -44,7 +46,7 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 4 The Main processing loop
 --------------------------
 
-.. code:: python
+.. code:: ipython
 
     def main(arguments, communicator):
         """Runs the example
@@ -61,7 +63,7 @@ This is a variation on example one that dumps the entire spectrum instead of jus
 
 This tells the communicator to do the basic setup.
 
-.. code:: python
+.. code:: ipython
 
     communicator.set_up()
 
@@ -70,7 +72,7 @@ This tells the communicator to do the basic setup.
 
 The loop will run continually until we run out of time. This sets up the time variables as well as a ``last_index`` variable that will make sure that we only print the value if it has been updated.
 
-.. code:: python
+.. code:: ipython
 
     print("Receiving data...")
     #Process until we complete scan time
@@ -88,7 +90,7 @@ The loop will run continually until we run out of time. This sets up the time va
 
 As before, the thread needs to be prompted to inspect the string it has pulled from the serial port.
 
-.. code:: python
+.. code:: ipython
 
     #Process all received data from device 
     rf_explorer.ProcessReceivedString(True)
@@ -96,9 +98,9 @@ As before, the thread needs to be prompted to inspect the string it has pulled f
 4.4 Print The Data
 ~~~~~~~~~~~~~~~~~~
 
-This checks the :attr:`SweepData.Count <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count>` to see if it is new data and then, if it is, :meth:`Dumps <RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump>` the data to the screen . This is the only part that differs from example 1.
+This checks the :attr:`RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Count` to see if it is new data and then, if it is, sends the data to the screen using :meth:`RFExplorer.RFESweepDataCollection.RFESweepDataCollection.Dump` which in turn calls :meth:`RFExplorer.RFESweepData.RFESweepData`. This is the only part that differs from example 1.
 
-.. code:: python
+.. code:: ipython
 
     #Print data if received new sweep only
     if (rf_explorer.SweepData.Count > last_index):
@@ -110,16 +112,16 @@ This checks the :attr:`SweepData.Count <RFExplorer.RFESweepDataCollection.RFESwe
 
 This is a leftover block to catch any exceptions that get raised.
 
-.. code:: python
+.. code:: ipython
 
     except Exception as error:
-        print("Error: ".format(error))
+        print("Error: {}".format(error))
     return
 
 5 The Executable Block
 ----------------------
 
-.. code:: python
+.. code:: ipython
 
     if __name__ == "__main__":
         parser = argument_parser()
@@ -127,3 +129,99 @@ This is a leftover block to catch any exceptions that get raised.
 
         with Communicator(arguments.serialport, arguments.baud_rate) as communicator:        
             main(arguments, communicator)
+
+6 Sample Output
+---------------
+
+.. code:: ipython
+
+    from example_1 import (
+        argument_parser,
+        Communicator,
+    )
+    from example_3 import main
+    parser = argument_parser()
+    arguments = parser.parse_args("--serialport /dev/ttyUSB0 --run-time 1".split())
+
+    with Communicator(arguments.serialport, arguments.baud_rate) as communicator:        
+        main(arguments, communicator)
+
+::
+
+    Detected COM ports:
+      * /dev/ttyUSB0
+    /dev/ttyUSB0 is a valid available port.
+    RF Explorer Valid Ports found: 1 - /dev/ttyUSB0 
+    User COM port: /dev/ttyUSB0
+    Connected: /dev/ttyUSB0, 500000 bauds
+    Sending the Reset Command
+    Waiting until the device resets
+    Reset, sleeping for 3 seconds to let the device settle
+    requesting the RF Explorer configuration
+    Waiting for the model to not be None
+    Received RF Explorer device model info:#C2-M:004,255,01.11
+    New Freq range - buffer cleared.
+
+    RF Explorer 23-Apr-13 01.04.05 01.11
+    Model is set
+    Receiving data...
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -99.5,-103.0,-101.5,-100.0,-101.5,-103.0,-101.5,-100.0,-100.0,-96.5,-98.5,-98.5,-101.0,-95.5,-99.0,-99.0,
+    -101.5,-102.5,-100.0,-100.0,-101.5,-96.0,-102.0,-99.0,-97.5,-100.0,-101.5,-99.5,-98.5,-101.0,-98.0,-101.0,
+    -98.5,-103.5,-98.5,-100.5,-99.5,-98.5,-99.5,-98.5,-101.0,-96.5,-97.5,-97.5,-98.5,-98.5,-102.0,-101.0,
+    -102.5,-101.5,-99.5,-97.0,-98.0,-97.5,-96.5,-100.0,-97.0,-101.5,-100.5,-95.0,-98.5,-99.5,-101.5,-99.0,
+    -101.5,-101.0,-100.0,-98.0,-98.0,-102.0,-98.0,-101.0,-97.0,-99.5,-99.5,-101.0,-96.5,-98.0,-100.0,-100.5,
+    -99.5,-97.5,-98.0,-102.0,-98.0,-95.5,-100.0,-97.5,-101.0,-98.5,-93.5,-102.5,-93.0,-102.0,-100.0,-98.0,
+    -99.5,-99.5,-98.0,-103.5,-99.5,-102.0,-99.0,-98.0,-94.5,-102.0,-97.0,-99.0,-101.5,-98.5,-101.5,-101.5
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -101.5,-101.5,-98.5,-96.0,-99.5,-99.5,-101.0,-98.5,-98.0,-95.0,-99.0,-103.5,-101.5,-99.5,-101.0,-99.0,
+    -100.5,-100.5,-101.0,-97.5,-103.0,-99.0,-97.0,-98.5,-103.5,-96.0,-99.0,-97.0,-101.5,-98.5,-100.0,-101.5,
+    -98.5,-101.5,-98.5,-102.5,-101.5,-98.5,-99.0,-99.5,-101.5,-101.0,-103.0,-97.5,-96.0,-102.0,-98.5,-98.5,
+    -99.0,-97.5,-100.0,-98.0,-99.5,-99.5,-101.0,-99.0,-103.5,-99.5,-102.5,-99.0,-100.5,-100.0,-96.5,-100.5,
+    -99.5,-101.5,-101.0,-99.0,-100.0,-98.0,-101.5,-101.5,-99.0,-98.0,-101.5,-102.5,-97.5,-99.5,-99.0,-99.0,
+    -98.0,-103.0,-100.0,-98.0,-101.5,-100.5,-99.5,-101.5,-97.5,-98.0,-103.5,-103.0,-101.5,-100.5,-99.5,-99.5,
+    -101.5,-99.5,-101.0,-100.5,-98.0,-97.5,-100.0,-100.0,-96.5,-97.0,-101.0,-100.5,-100.0,-101.0,-100.5,-102.0
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -98.5,-99.0,-100.0,-93.5,-95.5,-100.0,-99.0,-100.5,-99.5,-100.5,-95.0,-97.5,-101.0,-101.0,-98.5,-100.0,
+    -101.0,-100.5,-100.0,-98.0,-99.0,-104.5,-95.0,-102.5,-100.0,-98.5,-101.5,-98.5,-101.5,-98.0,-102.0,-100.0,
+    -101.0,-95.5,-98.0,-98.5,-98.0,-99.0,-101.0,-98.5,-104.0,-99.0,-98.5,-98.5,-96.5,-97.5,-100.5,-98.5,
+    -98.5,-103.0,-100.0,-99.5,-102.5,-98.0,-101.0,-100.0,-91.5,-97.5,-98.5,-102.0,-98.0,-101.0,-98.5,-96.5,
+    -100.0,-103.0,-101.0,-99.5,-103.0,-102.5,-99.0,-102.5,-99.5,-100.0,-97.5,-99.5,-96.0,-103.0,-100.0,-96.5,
+    -101.0,-100.5,-102.5,-103.0,-100.5,-103.0,-100.0,-101.0,-101.0,-102.0,-101.5,-101.0,-99.5,-99.0,-98.5,-97.0,
+    -102.0,-101.0,-101.0,-99.5,-100.0,-99.0,-99.5,-99.5,-101.0,-93.0,-97.0,-100.0,-100.0,-101.0,-99.5,-98.5
+    Received RF Explorer device model info:#C2-M:004,255,01.11
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -96.5,-102.5,-100.5,-101.0,-95.0,-96.5,-98.0,-101.0,-101.0,-100.5,-99.5,-97.5,-98.0,-98.5,-101.5,-99.5,
+    -100.0,-96.0,-99.5,-98.0,-105.0,-98.0,-99.0,-99.0,-99.0,-100.0,-97.5,-97.0,-100.5,-99.5,-98.5,-101.5,
+    -103.0,-99.0,-99.0,-99.5,-101.5,-98.5,-95.0,-100.5,-99.0,-99.5,-104.5,-102.5,-100.0,-102.0,-102.0,-97.5,
+    -99.5,-98.5,-99.5,-98.5,-95.5,-98.0,-102.0,-100.5,-103.0,-96.5,-93.0,-100.5,-99.5,-101.0,-101.0,-103.0,
+    -93.5,-99.5,-91.5,-98.5,-99.0,-99.0,-104.0,-102.0,-95.5,-101.0,-95.5,-99.0,-98.5,-94.5,-100.5,-98.0,
+    -98.5,-102.5,-102.0,-97.0,-101.5,-99.0,-99.0,-98.5,-98.5,-98.0,-99.5,-96.0,-98.5,-97.5,-103.0,-100.5,
+    -102.0,-100.5,-95.0,-100.5,-99.5,-99.5,-97.0,-104.0,-98.5,-96.5,-104.0,-99.5,-100.5,-99.5,-101.0,-96.0
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -101.5,-98.0,-106.0,-96.0,-98.5,-98.0,-99.0,-101.5,-100.5,-99.0,-99.5,-99.0,-98.0,-101.0,-101.0,-102.0,
+    -101.5,-102.0,-102.0,-100.0,-96.0,-98.5,-98.5,-104.0,-95.5,-100.0,-95.0,-97.0,-97.5,-100.0,-98.0,-98.5,
+    -101.5,-101.5,-97.5,-99.5,-101.5,-102.5,-98.0,-98.0,-97.5,-100.0,-100.0,-102.5,-99.5,-100.0,-98.0,-97.0,
+    -97.0,-100.0,-102.0,-101.5,-101.0,-96.5,-101.5,-96.5,-94.5,-101.0,-101.5,-98.0,-102.5,-99.0,-99.0,-101.0,
+    -99.0,-102.0,-99.5,-99.5,-96.5,-98.0,-99.5,-97.0,-100.5,-100.0,-101.0,-98.5,-100.0,-101.0,-99.0,-100.0,
+    -97.0,-96.0,-99.5,-100.0,-102.5,-101.5,-92.0,-100.0,-103.5,-101.0,-98.5,-97.0,-103.0,-102.0,-97.0,-103.5,
+    -97.0,-98.5,-93.0,-101.5,-98.0,-98.0,-98.0,-100.0,-99.5,-98.5,-98.0,-103.0,-103.0,-98.5,-99.0,-99.0
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -98.5,-99.5,-104.0,-99.5,-97.5,-99.0,-101.5,-101.0,-100.0,-95.0,-100.5,-103.0,-101.0,-98.0,-99.5,-98.0,
+    -99.5,-100.0,-97.5,-97.0,-98.5,-95.0,-101.0,-98.0,-100.0,-99.5,-102.0,-100.0,-102.5,-98.0,-95.5,-101.0,
+    -100.5,-99.0,-98.5,-99.0,-99.0,-98.5,-99.0,-100.0,-98.5,-100.5,-99.0,-99.0,-101.5,-98.5,-101.0,-102.0,
+    -100.0,-100.5,-100.0,-98.5,-98.0,-98.0,-102.0,-98.0,-102.0,-100.0,-99.5,-101.5,-97.5,-99.0,-97.0,-100.5,
+    -100.0,-102.0,-101.5,-101.0,-101.0,-97.0,-101.5,-105.5,-105.0,-96.0,-96.5,-99.0,-99.0,-100.0,-99.0,-94.0,
+    -98.5,-99.0,-97.0,-98.0,-94.5,-92.0,-101.0,-98.0,-101.0,-99.5,-102.5,-98.5,-101.5,-98.5,-97.0,-101.5,
+    -98.0,-98.0,-99.0,-100.0,-99.5,-101.5,-100.5,-101.0,-101.5,-99.5,-101.5,-100.0,-94.5,-101.0,-97.0,-101.5
+    Sweep data: 2401.000 - MHz 0.643MHz  - Steps: 112
+    -102.0,-99.5,-100.0,-103.5,-101.5,-98.5,-100.0,-100.0,-98.5,-99.0,-101.5,-100.0,-99.5,-99.5,-100.0,-100.0,
+    -101.5,-95.5,-95.5,-102.0,-101.0,-100.5,-102.5,-100.5,-98.5,-98.0,-98.5,-94.0,-100.0,-98.5,-102.5,-102.0,
+    -88.0,-85.5,-85.5,-101.5,-99.0,-102.5,-100.0,-98.5,-102.5,-96.0,-98.0,-101.5,-96.5,-97.0,-98.0,-99.5,
+    -101.5,-98.0,-101.5,-100.5,-102.0,-97.0,-98.0,-101.0,-100.5,-96.0,-98.0,-99.5,-97.5,-99.5,-102.0,-98.5,
+    -99.5,-102.5,-100.0,-97.5,-101.0,-102.5,-100.5,-98.0,-98.5,-102.5,-97.0,-96.5,-99.0,-102.5,-98.0,-100.0,
+    -104.5,-102.5,-97.5,-102.5,-97.5,-101.0,-100.0,-95.0,-98.0,-101.5,-99.5,-97.0,-99.0,-98.0,-101.5,-100.5,
+    -98.5,-99.0,-101.0,-100.5,-99.5,-100.5,-99.0,-99.0,-99.5,-100.5,-93.5,-97.0,-96.0,-100.0,-101.0,-99.5
+    Disconnected.
+
+So you can see that the RF Explorer breaks the frequencies up into 112 steps per sweep. The values seem really low, probably because my computers are all on 5 GHz, next time I should maybe run some traffic while this is running.
