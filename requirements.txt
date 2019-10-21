@@ -34,5 +34,5 @@ sphinx-bootstrap-theme==0.6.4
 sphinxcontrib-plantuml==0.10
 sphinxcontrib-websupport==1.0.1
 traitlets==4.3.2
-urllib3==1.22
+urllib3==1.24.2
 wcwidth==0.1.7
